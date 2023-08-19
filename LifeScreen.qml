@@ -758,12 +758,12 @@ To locate sections with details use your editor to search for ****
 
 // ***************************************************** Themes function
 
-// Theme 2 has a heartbeat like thing in it ;-)
+// Theme 1 has a heartbeat like thing in it ;-)
 
     Timer {
-        id: theme2HeartBeatTimer
+        id: theme1HeartBeatTimer
         interval: dimState ? 10000 : 1000
-        running: alive && (selectedTheme == 2)
+        running: alive && (selectedTheme == 1)
         repeat: true
         onTriggered: {
             if (borderWidthLife == cellSize)
