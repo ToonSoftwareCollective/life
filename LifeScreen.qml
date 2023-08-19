@@ -6,7 +6,7 @@ Screen {
     id                              : lifeScreen
 
     // A developer may want to see some logging
-    property bool debug             : true
+    property bool debug             : false
 
 /*
 
@@ -241,12 +241,18 @@ To locate sections with details use your editor to search for ****
 
 // ******************************************************** Compositions
 
-    property variant selectExamples : [
-        "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider"
+
+// More complex thing should only be made available on Toon 2
+
+    property variant selectExamples : 
+    isNxt ?
+       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider"
       , "4 Gliders", "Small Spaceships", "Big Spaceship", "Upwards Spaceship"
       , "Pi", "Pulsar", "5 Pulsars", "Gosper Gun 1", "Other Gun"
-    ]
-
+        ]
+    :
+       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider" ]
+    
 // A blinker on Toon looks like : ( the simplest example to create a variant)
 //      #
 //      #
@@ -432,7 +438,8 @@ To locate sections with details use your editor to search for ****
         app.log("LifeScreen onCompleted Started")
         lifeSetup()
         selectTheme( selectedTheme )   // color and shape settings
-        addExample("Gosper Gun 1")
+        if (isNxt) { addExample("Gosper Gun 1") }
+        else       { addExample("Glider") }
         app.log("LifeScreen onCompleted Completed")
     }
 
@@ -946,7 +953,7 @@ To locate sections with details use your editor to search for ****
         case "Gosper Gun 1"     : wrapMode = false; minRowsCols(22,36); speed = 6 ; togglePreset(0, 0,1,1,gosperGliderGunData); break
         case "Other Gun"        : wrapMode = false; minRowsCols(37,48); speed = 6 ; togglePreset(0, 0,1,1,otherGliderGunData); break
         case "Pi"               : minRowsCols(24,24); togglePreset(0, 0,1,1,piData); break
-        case "Glider"           : wrapMode = true; minRowsCols(7,15); speed = 9 ; togglePreset(1,1,1,1,gliderData); break
+        case "Glider"           : wrapMode = true; minRowsCols(7,15); speed = 4 ; togglePreset(1,1,1,1,gliderData); break
         case "4 Gliders"        : wrapMode = true; minRowsCols(10,20); speed = 9
                                 togglePreset(1,1,1,1,gliderData); togglePreset(1,6,1,1,gliderData); togglePreset(1,11,1,1,gliderData); togglePreset(6,14,1,1,gliderData); break
         case "Small Spaceships" : wrapMode = true; minRowsCols(8,40); speed = 6
@@ -1021,8 +1028,7 @@ To locate sections with details use your editor to search for ****
             + "\n\nOn the Presets page are some examples which can be found on many places on the Internet."
             +   "\nWhen you have issues, remarks or suggestions for additional examples you can find me on github as JackV2020."
 
-            + "\n\nThe inital setup of the app is a Gosper Glider Gun which generates Gliders which run into a wall and each stays there as a 2x2"
-            +     " until it is hit and destroyed by the next glider."
+            + "\n\nThe inital setup of the app is an example of the presets."
             +   "\nAll you need to do is click \"Start Life\" and increase the Speed. "
         }
 
@@ -1340,8 +1346,10 @@ To locate sections with details use your editor to search for ****
             cellNumberPrefix    : true
             showItems           : 6
             anchors {
-                top             : x3x3.top
+//                top             : x3x3.top
+                top             : parent.top
                 horizontalCenter: presetScreenText.horizontalCenter
+                topMargin       : buttonHeight
             }
             fontFamily          : qfont.regular.name
             buttonPixelSize     : isNxt ? 20 : 16
@@ -1358,7 +1366,7 @@ To locate sections with details use your editor to search for ****
             anchors {
                 top             : selectLife.bottom
                 right           : parent.right
-                topMargin       : buttonHeight
+                topMargin       : buttonHeight / 2
             }
 //            lineHeight          : 0.8
             font    {
@@ -1371,8 +1379,9 @@ To locate sections with details use your editor to search for ****
         +   "\nClick and wait...., When the board is too small it is cleared and resized."
         +   "\nClick the same again to remove the selection."
         +   "\n\nOn the left you can change the size of the board."
-        +   "\nResizing the board takes time...."
-        +   "\n\nAnd the bigger the board, the more the work, the slower the app....."
+        +   "Resizing the board takes time...."
+        +   "\nAnd the bigger the board, the more the work, the slower the app....."
+        +   "\n.....even buttons may react slower....."
         }
 
 // ***************************************** Presets Screen Size Buttons
