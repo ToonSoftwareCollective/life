@@ -18,13 +18,14 @@ Screen {
  To add a composition to this app :
 
  1) Search for toon in this code and you will find where to do it.
-        Note the line which starts with : // A blinker on Toon
+    Note the line which starts with : // A blinker on Toon
  2) Give it a name in the array where you found "Toon", "Blinker" ....
  3) Draw your new Toon composition on paper/have it on screen
-        and rectangle around it and choose the left upper cell as 0,0
+    and rectangle around it and choose the left upper cell as 0,0
  4) Fill a variant with a name ending at Data like toonData
-      for the grid, row by row and column by column.
+    for the grid, row by row and column by column.
  5) Add a case in the function addExample(selectedItem) like for "Toon"
+    minRowCols is used to set the screen dimensions on Toon screen 
 
 
 */
@@ -246,12 +247,12 @@ To locate sections with details use your editor to search for ****
 
     property variant selectExamples : 
     isNxt ?
-       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider"
-      , "4 Gliders", "Small Spaceships", "Big Spaceship", "Upwards Spaceship"
+       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider", "Small Spaceship", "Pentadecathlon"
+      , "4 Gliders", "3 Small Spaceships", "Big Spaceship", "Upwards Spaceship"
       , "Pi", "Pulsar", "5 Pulsars", "Gosper Gun 1", "Other Gun"
         ]
     :
-       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider" ]
+       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider", "Small Spaceship", "Pentadecathlon" ]
     
 // A blinker on Toon looks like : ( the simplest example to create a variant)
 //      #
@@ -305,6 +306,19 @@ To locate sections with details use your editor to search for ****
       , [ 1, 4]
       , [ 2, 0] , [ 2, 4]
       , [ 3, 1] , [ 3, 2] , [ 3, 3] , [ 3, 4]
+    ]
+
+// a Penta-decathlon oscillator
+// needs some more space, see the case statement
+    property variant pentadecathlonData :[
+        [ 0, 0] , [ 0, 1], [ 0, 2]
+      , [ 1, 0] , [ 1, 2]
+      , [ 2, 0] , [ 2, 1], [ 2, 2]
+      , [ 3, 0] , [ 3, 1], [ 3, 2]
+      , [ 4, 0] , [ 4, 1], [ 4, 2]
+      , [ 5, 0] , [ 5, 1], [ 5, 2]
+      , [ 6, 0] , [ 6, 2]
+      , [ 7, 0] , [ 7, 1], [ 7, 2]
     ]
 
 // and some more serious things below
@@ -946,17 +960,27 @@ To locate sections with details use your editor to search for ****
 
     function addExample(selectedItem) {
         switch (selectedItem) {
+        
+// What is available on Toon 1 depends on 'property variant selectExamples'
+
+// These run on Toon 1 and Toon 2
+
         case "Toon"             : wrapMode = false; minRowsCols(12,36); togglePreset(2,2,1,1,toonData); break
         case "Blinker"          : wrapMode = false; minRowsCols(5,5); togglePreset(1,2,1,1,blinkerData); break
         case "To 4 Blinkers"    : wrapMode = false; minRowsCols(11,11); togglePreset(4,4,1,1,to4BlinkersData); break
         case "Random"           : randomLife(); break
+        case "Glider"           : wrapMode = true; minRowsCols(7,15); speed = 4 ; togglePreset(1,1,1,1,gliderData); break
+        case "Small Spaceship"  : wrapMode = true; minRowsCols(7,20); speed = 6; togglePreset(1,0,1,1,smallShipData ); break
+        case "Pentadecathlon"   : wrapMode = false; minRowsCols(16,9); speed = 9; togglePreset(4,3,1,1,pentadecathlonData); break
+
+// These are to intensive for Toon 1 and run on Toon 2 only
+
         case "Gosper Gun 1"     : wrapMode = false; minRowsCols(22,36); speed = 6 ; togglePreset(0, 0,1,1,gosperGliderGunData); break
         case "Other Gun"        : wrapMode = false; minRowsCols(37,48); speed = 6 ; togglePreset(0, 0,1,1,otherGliderGunData); break
         case "Pi"               : minRowsCols(24,24); togglePreset(0, 0,1,1,piData); break
-        case "Glider"           : wrapMode = true; minRowsCols(7,15); speed = 4 ; togglePreset(1,1,1,1,gliderData); break
         case "4 Gliders"        : wrapMode = true; minRowsCols(10,20); speed = 9
                                 togglePreset(1,1,1,1,gliderData); togglePreset(1,6,1,1,gliderData); togglePreset(1,11,1,1,gliderData); togglePreset(6,14,1,1,gliderData); break
-        case "Small Spaceships" : wrapMode = true; minRowsCols(8,40); speed = 6
+        case "3 Small Spaceships" : wrapMode = true; minRowsCols(8,40); speed = 6
                                 togglePreset(1,0,1,1,smallShipData ); togglePreset(7,8,-1,1,smallShipData ); togglePreset(2,25,1,1,smallShipData ); break
         case "Pulsar"         : wrapMode = false; minRowsCols(15,15); speed = 6
                                 togglePreset( 1,1,1,1,pulsarData ); break
@@ -1344,7 +1368,7 @@ To locate sections with details use your editor to search for ****
             buttonText          : "Life Examples"
             scrollmenuArray     : selectExamples
             cellNumberPrefix    : true
-            showItems           : 6
+            showItems           : isNxt ? 6 : 5
             anchors {
 //                top             : x3x3.top
                 top             : parent.top
