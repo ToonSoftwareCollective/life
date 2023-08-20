@@ -1,2 +1,5 @@
+1.0.1
+- Tune for Toon 1
+- 2 more presets
 1.0.0
 - First public release by JackV
