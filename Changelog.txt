@@ -1,3 +1,11 @@
+2.0.0
+- Moved Themes and Examples from hardcoded to Internet repository
+  (now we can add Themes and Examples without updating the app)
+- Solved background administration bug
+- Fixed Life and Example grids to screen so they can't slide anymore
+- Improved behaviour of scroll menus
+- New button to enable/disable clicks on the Life screen
+- Add Offset positioning on Preset screen
 1.0.1
 - Tune for Toon 1
 - 2 more presets

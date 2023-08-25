@@ -12,10 +12,11 @@ Tile {
             When dimState is activated while lifeScreenUrl is on the screen,
             lifeScreenUrl will run onVisibleChanged and will execute :
                 app.keepLifeOnScreen = alive
-            and it will be removed from the screen and the Tile will show up.
+            and it will be removed from the screen and this Tile will show up.
 
-            When the tile shows up while live == true,
-            app.keepLifeOnScreen == true and so we need to open the screen again.
+            When the tile shows up while Life is still running ,
+                app.keepLifeOnScreen == true 
+            and we need to open the screen again while we are in dimState
 */
             if (app.keepLifeOnScreen) { stage.openFullscreen(app.lifeScreenUrl) } 
         }

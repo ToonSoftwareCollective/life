@@ -55,10 +55,15 @@ Item {
     width                               : buttonWidth       // Button width
     height                              : buttonHeight      // Button height
 
+    property variant prevScrollmenuArray : []   // We remember the previous menu so we can see if need to rebuild it
+
 // the next forces the scroll menu to be shown on top of all siblings
     z                                   : showScrollMenu ? 1 : 0
 
 // Configuration properties
+
+    // Default is to  open at last position and not at the top of the menu when reopening
+    property bool openAtTop             : false
 
     // Default is to hide the Go button
     property bool goButton              : false
@@ -113,58 +118,70 @@ Item {
 //  so the next time you press the button we want to highlight your last selection
 //  using the index of the buttonText
 
+        var differenceFound = true
+        if ( prevScrollmenuArray.length > 0 ) {
+            try {
+                differenceFound = (prevScrollmenuArray.length != scrollmenuArray.length)
+                var i = 0
+                while ( ( ! differenceFound ) && (i < scrollmenuArray.length - 1 )){ differenceFound = (prevScrollmenuArray[i] != scrollmenuArray[i] ) ; i++ }
+            }
+            catch(err) { differenceFound = true }
+        }
         try { selectedItemIndex=Math.max(0,scrollmenuArray.indexOf(buttonText)) }
         catch(err) { selectedItemIndex=0 }
 
-        if (scrollmenuModel.count == 0) { // first time button is pressed
-            scrollmenuModel.append({id: 0 , text : ""})     // this is filled with the right value at the end of this function
-            var count = 0                                   // count all items
-            var itemText = ""
-            for (var i = 0 ; i < scrollmenuArray.length ; i++ ){
-                itemText = itemText = scrollmenuArray[i]
-                if (scrollmenuArray[i] != "" ) { count++ }
-                if (cellNumberPrefix) {
-                    scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
-                } else {
-                    scrollmenuModel.append({id: (i+1) , text : itemText})
+        if (differenceFound) {
+            if (scrollmenuModel.count == 0) { // first time button is pressed
+                scrollmenuModel.append({id: 0 , text : ""})     // this is filled with the right value at the end of this function
+                var count = 0                                   // count all items
+                var itemText = ""
+                for (var i = 0 ; i < scrollmenuArray.length ; i++ ){
+                    itemText = itemText = scrollmenuArray[i]
+                    if (scrollmenuArray[i] != "" ) { count++ }
+                    if (cellNumberPrefix) {
+                        scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
+                    } else {
+                        scrollmenuModel.append({id: (i+1) , text : itemText})
+                    }
                 }
-            }
-        } else { // not first time so we need to update because array may have changed
-            var i = 0
-            var count = 0
-            var itemText = ""
-            while ( ( i < scrollmenuArray.length ) && (i+1 < scrollmenuModel.count) ) {
-                itemText = itemText = scrollmenuArray[i]
-                if (scrollmenuArray[i] != "" ) { count++ }
-                if (cellNumberPrefix) {
-                    scrollmenuModel.setProperty(i+1, "text", (i+1) + ") "+ itemText )
-                } else {
-                    scrollmenuModel.setProperty(i+1, "text", itemText )
+            } else { // not first time so we need to update because array may have changed
+                var i = 0
+                var count = 0
+                var itemText = ""
+                while ( ( i < scrollmenuArray.length ) && (i+1 < scrollmenuModel.count) ) {
+                    itemText = itemText = scrollmenuArray[i]
+                    if (scrollmenuArray[i] != "" ) { count++ }
+                    if (cellNumberPrefix) {
+                        scrollmenuModel.setProperty(i+1, "text", (i+1) + ") "+ itemText )
+                    } else {
+                        scrollmenuModel.setProperty(i+1, "text", itemText )
+                    }
+                    i=i+1
                 }
-                i=i+1
-            }
-            while ( i < scrollmenuArray.length ) {  // the array may have more items than before
-                itemText = itemText = scrollmenuArray[i]
-                if (scrollmenuArray[i] != "" ) { count++ }
-                if (cellNumberPrefix) {
-                    scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
-                } else {
-                    scrollmenuModel.append({id: (i+1) , text : itemText})
+                while ( i < scrollmenuArray.length ) {  // the array may have more items than before
+                    itemText = itemText = scrollmenuArray[i]
+                    if (scrollmenuArray[i] != "" ) { count++ }
+                    if (cellNumberPrefix) {
+                        scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
+                    } else {
+                        scrollmenuModel.append({id: (i+1) , text : itemText})
+                    }
+                    i=i+1
                 }
-                i=i+1
-            }
-            while (i+1 < scrollmenuModel.count) { // the array may have less items than before
-                if (cellNumberPrefix) {
-                    scrollmenuModel.setProperty(i+1, "text", (i+1) + ") " )
-                } else {
-                    scrollmenuModel.setProperty(i+1, "text", "" )
+
+                // the array may have less items than before so we may need to remove delegates
+                var end = scrollmenuModel.count - 1
+                while (end > count ) {
+                    scrollmenuModel.remove(end)
+                    end = end - 1
                 }
-                i=i+1
+
             }
+            if (scrollMenuTitle == "") { scrollmenuModel.setProperty(0, "text", "Select 1 of " + count ) }
+            else { scrollmenuModel.setProperty(0, "text", scrollMenuTitle) }
         }
-        if (scrollMenuTitle == "") { scrollmenuModel.setProperty(0, "text", "Select 1 of " + count ) }
-        else { scrollmenuModel.setProperty(0, "text", scrollMenuTitle) }
         showScrollMenu = true
+        if (openAtTop) {scrollmenuGrid.contentY = 0}
     }
 
     Timer {
@@ -199,11 +216,12 @@ Item {
             itemSelectReady = true  // start the timer below
         }
         showScrollMenu = false
+        prevScrollmenuArray = scrollmenuArray.slice()   // remember last input
     }
 
     Timer {
         id: itemSelectedTimer
-        interval: 50 
+        interval: 50
         running: itemSelectReady
         repeat: true
 // signal to object that item is selected
