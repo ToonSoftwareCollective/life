@@ -1,3 +1,10 @@
+2.0.0
+- Moved Examples and Themes from hardcoded to Internet repository
+- Fastened Life and Example grids to center of screens
+- Improved behaviour of scroll menus
+- New button to enable/disable clicks on the Life screen
+- Toon 2 : Add Offset positioning on Preset screen to override default position
+- Solved bug : grid background admin was not always cleared completely
 1.0.1
 - Tune for Toon 1
 - 2 more presets

@@ -3,37 +3,26 @@ import qb.components 1.0
 import BasicUIControls 1.0
 
 Screen {
-    id                              : lifeScreen
+    id                          : lifeScreen
 
     // A developer may want to see some logging
-    property bool debug             : false
+    property bool debug         : false
+    property bool useTestData   : false
+    property bool useJacksData  : false
+    
+//    onDebugChanged: { app.log("debug changed to : "+debug) }
 
 /*
 
- HOWTO add a composition
+ Hi, so you got here, very welcome to you.
+
+ When you want to add examples or themes visit :
  
- When you just want to add compositions read this short howto
- When you want to know how the algorithm works read the next section
-
- To add a composition to this app :
-
- 1) Search for toon in this code and you will find where to do it.
-    Note the line which starts with : // A blinker on Toon
- 2) Give it a name in the array where you found "Toon", "Blinker" ....
- 3) Draw your new Toon composition on paper/have it on screen
-    and rectangle around it and choose the left upper cell as 0,0
- 4) Fill a variant with a name ending at Data like toonData
-    for the grid, row by row and column by column.
- 5) Add a case in the function addExample(selectedItem) like for "Toon"
-    minRowCols is used to set the screen dimensions on Toon screen 
+ https://github.com/JackV2020/appDataTest/tree/main/lifeData
 
 
-*/
 
-
-/*
-
-The way it works.....
+About the way the app works.....
 
 The Game of Life happens in a grid.
 I use a GridView to visualise that grid with cells.
@@ -156,8 +145,8 @@ To locate sections with details use your editor to search for ****
     property int baseHeight         : parent.height * 0.9
 
     // This application does not support an infinite screen
-    property int maxcolumns         : isNxt ? 50 : 36
-    property int maxrows            : isNxt ? 50 : 36
+    property int maxcolumns         : isNxt ? 51 : 33
+    property int maxrows            : isNxt ? 51 : 33
 
     // The number of columns and rows in use with some start value.
     property int columns            : 5
@@ -200,7 +189,7 @@ To locate sections with details use your editor to search for ****
 
     property variant selectThemesData : [ "Black / White", "Red Rings", "Brown", "Lime" ]
 
-    property int selectedTheme              : 0
+    property real heartBeat              : 0
 
     // Life screen setings
 
@@ -209,6 +198,9 @@ To locate sections with details use your editor to search for ****
     property string colorLife               : "lightgreen"
     property string borderColorLife         : "lightgreen"
     property int borderWidthLife            : 0
+    property string cellText                : ""
+    property string cellTextColor           : "transparent"
+    property int cellTextPixelSize               : 1
     // Dead not clickable
     property string colorDeadNoClick        : "lightyellow"
     property string borderColorDeadNoClick  : "white"
@@ -240,220 +232,23 @@ To locate sections with details use your editor to search for ****
     property int offsetlb : (columns + 2) - 1   // lb :: left bottom
     property int offsetrb : (columns + 2) + 1   // rb :: right bottom
 
-// ******************************************************** Compositions
-
-
-// More complex thing should only be made available on Toon 2
-
-    property variant selectExamples : 
-    isNxt ?
-       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider", "Small Spaceship", "Pentadecathlon"
-      , "4 Gliders", "3 Small Spaceships", "Big Spaceship", "Upwards Spaceship"
-      , "Pi", "Pulsar", "5 Pulsars", "Gosper Gun 1", "Other Gun"
-        ]
-    :
-       [ "Toon", "Blinker", "To 4 Blinkers", "Random", "Glider", "Small Spaceship", "Pentadecathlon" ]
+    property string presetMode      : "resize" // mode for preset screen "resize" or "offset"
+    property int presetRowOffset    : 0
+    property int presetColumnOffset : 0
+    property bool showOffset : false     // There is a timer to make the Offset blink on the preset screen
     
-// A blinker on Toon looks like : ( the simplest example to create a variant)
-//      #
-//      #
-//      #
-// And is defined as :
+// ********************************************* Compositions and Themes
 
-    property variant blinkerData : [
-        [ 0, 0]
-      , [ 1, 0]
-      , [ 2, 0]
-    ]
-
-//  And this just does has to be there ;-)
-
-// To get the idea of how to create a composition check the example above
-
-    property variant toonData :[
-        [ 0, 0] , [ 0, 1] , [ 0, 2] , [ 0, 3] , [ 0, 4] , [ 0,10] , [ 0,11] , [ 0,19] , [ 0,20] , [ 0,26] , [ 0, 31]
-      , [ 1, 2] , [ 1, 9] , [ 1,12] , [ 1,18] , [ 1,21] , [ 1,26] , [ 1,27] , [ 1,31]
-      , [ 2, 2] , [ 2, 8] , [ 2,13] , [ 2,17] , [ 2,22] , [ 2,26] , [ 2,28] , [ 2,31]
-      , [ 3, 2] , [ 3, 8] , [ 3,10] , [ 3,11] , [ 3,13] , [ 3,17] , [ 3,19] , [ 3,20] , [ 3,22] , [ 3,26] , [ 3,28] , [ 3,31]
-      , [ 4, 2] , [ 4, 8] , [ 4,13] , [ 4,17] , [ 4,22] , [ 4,26] , [ 4,29] , [ 4,31]
-      , [ 5, 2] , [ 5, 8] , [ 5,13] , [ 5,17] , [ 5,22] , [ 5,26] , [ 5,29] , [ 5,31]
-      , [ 6, 2] , [ 6, 9] , [ 6,12] , [ 6,18] , [ 6,21] , [ 6,26] , [ 6,30] , [ 6,31]
-      , [ 7, 2] , [ 7,10] , [ 7,11] , [ 7,19] , [ 7,20] , [ 7,26] , [ 7,31]
-    ]
-
-// A glider looks like :
-//      .#.
-//      ..#
-//      ###
-// And is defined as :
-
-    property variant gliderData : [
-        [ 0, 1]
-      , [ 1, 2]
-      , [ 2, 0] , [ 2, 1] , [ 2, 2]
-    ]
-
-    property variant to4BlinkersData :[
-        [ 0, 1]
-      , [ 1, 0] , [ 1, 1] , [ 1, 2]
-      , [ 2, 0] , [ 2, 1] , [ 2, 2]
-    ]
-
-// a smallShip expands 1 row up
-// so do not create one at row = 0 and col = 0 but at least row = 1 and col = 0
-    property variant smallShipData :[
-        [ 0, 0] , [ 0, 3]
-      , [ 1, 4]
-      , [ 2, 0] , [ 2, 4]
-      , [ 3, 1] , [ 3, 2] , [ 3, 3] , [ 3, 4]
-    ]
-
-// a Penta-decathlon oscillator
-// needs some more space, see the case statement
-    property variant pentadecathlonData :[
-        [ 0, 0] , [ 0, 1], [ 0, 2]
-      , [ 1, 0] , [ 1, 2]
-      , [ 2, 0] , [ 2, 1], [ 2, 2]
-      , [ 3, 0] , [ 3, 1], [ 3, 2]
-      , [ 4, 0] , [ 4, 1], [ 4, 2]
-      , [ 5, 0] , [ 5, 1], [ 5, 2]
-      , [ 6, 0] , [ 6, 2]
-      , [ 7, 0] , [ 7, 1], [ 7, 2]
-    ]
-
-// and some more serious things below
-
-    property variant gosperGliderGunData : [
-        [ 0,23] , [ 0,25]
-      , [ 1,21] , [ 1,25]
-      , [ 2,13] , [ 2,21] , [ 2,34] , [ 2,35]
-      , [ 3,12] , [ 3,13] , [ 3,14] , [ 3,15] , [ 3,20] , [ 3,25] , [ 3,34] , [ 3,35]
-      , [ 4, 0] , [ 4, 1] , [ 4,11] , [ 4,12] , [ 4,14] , [ 4,16] , [ 4,21]
-      , [ 5, 0] , [ 5, 1] , [ 5,10] , [ 5,11] , [ 5,12] , [ 5,14] , [ 5,17] , [ 5,21] , [ 5,25]
-      , [ 6,11] , [ 6,12] , [ 6,14] , [ 6,16] , [ 6,23] , [ 6,25]
-      , [ 7,12] , [ 7,13] , [ 7,14] , [ 7,15]
-      , [ 8,13]
-    ]
-
-    property variant otherGliderGunData : [
-        [ 0,25] , [ 0,26] , [ 0,32] , [ 0,33]
-      , [ 1,25] , [ 1,26] , [ 1,32] , [ 1,33]
-      , [ 2,25] , [ 2,26] , [ 2,32] , [ 2,33]
-      , [ 3,25] , [ 3,26] , [ 3,27] , [ 3,31] , [ 3,32] , [ 3,33]
-      , [ 4,25] , [ 4,27] , [ 4,31] , [ 4,33]
-      , [ 5,25] , [ 5,28] , [ 5,30] , [ 5,33]
-      , [ 6,27] , [ 6,28] , [ 6,30] , [ 6,31]
-
-      , [11,25] , [11,26] , [11,32] , [11,33]
-      , [12,25] , [12,26] , [12,28] , [12,30] , [12,32] , [12,33]
-      , [13,25] , [13,28] , [13,30] , [13,33]
-      , [14,25] , [14,26] , [14,27] , [14,31] , [14,32] , [14,33]
-
-      , [23, 1] , [23, 2] , [23, 3] , [23, 4] , [23,12] , [23,13]
-      , [24, 0] , [24, 4] , [24,11] , [24,14]
-      , [25, 0] , [25,11] , [25,14] , [25,15]
-      , [26, 1] , [26, 3] , [26, 4] , [26, 6] , [26,11] , [26,14]
-      , [27, 4] , [27, 5] , [27, 6] , [27,13]
-
-      , [29, 4] , [29, 5] , [29, 6] , [29,13]
-      , [30, 1] , [30, 3] , [30, 4] , [30, 6] , [30,11] , [30,14]
-      , [31, 0] , [31,11] , [31,14] , [31,15] , [31,27] , [31,28]
-      , [32, 0] , [32, 4] , [32,11] , [32,14] , [32,27] , [32,28]
-      , [33, 1] , [33, 2] , [33, 3] , [33, 4] , [33,12] , [33,13]
-
-    ]
-
-    property variant piData : [
-        [ 0,11] , [ 0,12]
-      , [ 1,6 ] , [ 1,7 ] , [ 1,9 ] , [ 1,14] , [ 1,16] , [ 1,17]
-      , [ 2,6 ] , [ 2,17]
-      , [ 3,7 ] , [ 3,8 ] , [ 3,15] , [ 3,16]
-      , [ 4,4 ] , [ 4,5 ] , [ 4,6 ] , [ 4,9 ] , [ 4,10] , [ 4,11] , [ 4,12] , [ 4,13] , [ 4,14] , [ 4,17] , [ 4,18] , [ 4,19]
-      , [ 5,4 ] , [ 5,7 ] , [ 5,16] , [ 5,19]
-      , [ 6,1 ] , [ 6,2 ] , [ 6,4 ] , [ 6,6 ] , [ 6,17] , [ 6,19] , [ 6,21] , [ 6,22]
-      , [ 7,1 ] , [ 7,3 ] , [ 7,5 ] , [ 7,18] , [ 7,20] , [ 7,22]
-      , [ 8,3 ] , [ 8,20]
-      , [ 9,1 ] , [ 9,4 ] , [ 9,19] , [ 9,22]
-      , [10,4 ] , [10,12] , [10,13] , [10,14] , [10,19]
-      , [11,0 ] , [11,4 ] , [11,12] , [11,14] , [11,19] , [11,23]
-      , [12,0 ] , [12,4 ] , [12,12] , [12,14] , [12,19] , [12,23]
-      , [13,4 ] , [13,19]
-      , [14,1 ] , [14,4 ] , [14,19] , [14,22]
-      , [15,3 ] , [15,20]
-      , [16,1 ] , [16,3 ] , [16,5 ] , [16,18] , [16,20] , [16,22]
-      , [17,1 ] , [17,2 ] , [17,4 ] , [17,6 ] , [17,17] , [17,19] , [17,21] , [17,22]
-      , [18,4 ] , [18,7 ] , [18,16] , [18,19]
-      , [19,4 ] , [19,5 ] , [19,6 ] , [19,9 ] , [19,10] , [19,11] , [19,12] , [19,13] , [19,14] , [19,17] , [19,18] , [19,19]
-      , [20,7 ] , [20,8 ] , [20,15] , [20,16]
-      , [21,6 ] , [21,17]
-      , [22,6 ] , [22,7 ] , [22,9 ] , [22,14] , [22,16] , [22,17]
-      , [23,11] , [23,12]
-    ]
-
-// a pulsar expands 1 column to the left and 1 to the right and 1 row up and 1 down
-// so do not create one at row = 0 and col = 0 but at least row = 1 and col = 1
-    property variant pulsarData : [
-        [ 0, 2] , [ 0, 3] , [ 0, 4] , [ 0, 8] , [ 0, 9] , [ 0,10]
-
-      , [ 2, 0] , [ 2, 5] , [ 2, 7] , [ 2,12]
-      , [ 3, 0] , [ 3, 5] , [ 3, 7] , [ 3,12]
-      , [ 4, 0] , [ 4, 5] , [ 4, 7] , [ 4,12]
-      , [ 5, 2] , [ 5, 3] , [ 5, 4] , [ 5, 8] , [ 5, 9] , [ 5,10]
-
-      , [ 7, 2] , [ 7, 3] , [ 7, 4] , [ 7, 8] , [ 7, 9] , [ 7,10]
-      , [ 8, 0] , [ 8, 5] , [ 8, 7] , [ 8,12]
-      , [ 9, 0] , [ 9, 5] , [ 9, 7] , [ 9,12]
-      , [10, 0] , [10, 5] , [10, 7] , [10,12]
-
-      , [12, 2] , [12, 3] , [12, 4] , [12, 8] , [12, 9] , [12,10]
-
-    ]
-
-    property variant bigShipData : [
-        [ 0,33]
-      , [ 1,16] , [ 1,32] , [ 1,34]
-      , [ 2, 6] , [ 2, 8] , [ 2,15] , [ 2,21] , [ 2,22] , [ 2,31]
-      , [ 3, 6] , [ 3,11] , [ 3,16] , [ 3,18] , [ 3,19] , [ 3,20] , [ 3,21] , [ 3,22] , [ 3,23] , [ 3,28] , [ 3,29]
-      , [ 4, 6] , [ 4, 8] , [ 4, 9] , [ 4,10] , [ 4,11] , [ 4,12] , [ 4,13] , [ 4,14] , [ 4,15] , [ 4,26] , [ 4,29] , [ 4,31] , [ 4,32] , [ 4,33]
-      , [ 5, 9] , [ 5,15] , [ 5,23] , [ 5,24] , [ 5,25] , [ 5,26] , [ 5,31] , [ 5,32] , [ 5,33]
-      , [ 6, 4] , [ 6, 5] , [ 6,23] , [ 6,24] , [ 6,25] , [ 6,27]
-      , [ 7, 1] , [ 7, 4] , [ 7, 5] , [ 7,13] , [ 7,14] , [ 7,23] , [ 7,24]
-      , [ 8, 1] , [ 8, 4]
-      , [ 9, 0]
-      , [10, 1] , [10, 4]
-      , [11, 1] , [11, 4] , [11, 5] , [11,13] , [11,14] , [11,23] , [11,24]
-      , [12, 4] , [12, 5] , [12,23] , [12,24] , [12,25] , [12,27]
-      , [13, 9] , [13,15] , [13,23] , [13,24] , [13,25] , [13,26] , [13,31] , [13,32] , [13,33]
-      , [14, 6] , [14, 8] , [14, 9] , [14,10] , [14,11] , [14,12] , [14,13] , [14,14] , [14,15] , [14,26] , [14,29] , [14,31] , [14,32] , [14,33]
-      , [15, 6] , [15,11] , [15,16] , [15,18] , [15,19] , [15,20] , [15,21] , [15,22] , [15,23] , [15,28] , [15,29]
-      , [16, 6] , [16, 8] , [16,15] , [16,21] , [16,22] , [16,31]
-      , [17,16] , [17,32] , [17,34]
-      , [18,33]
-    ]
-
-    property variant upShipData : [
-        [ 0, 1] , [ 0, 2] , [ 0, 5] , [ 0, 6]
-      , [ 1, 3] , [ 1, 4]
-      , [ 2, 3] , [ 2, 4]
-      , [ 3, 0] , [ 3, 2] , [ 3, 5] , [ 3, 7]
-      , [ 4, 0] , [ 4, 7]
-
-      , [ 6, 0] , [ 6, 7]
-      , [ 7, 1] , [ 7, 2] , [ 7, 5] , [ 7, 6]
-      , [ 8, 2] , [ 8, 3] , [ 8, 4] , [ 8, 5]
-
-      , [10, 3] , [10, 4]
-      , [11, 3] , [11, 4]
-    ]
+    property variant jsonLifeData
+    property variant lifeExamplesName : []
+    property variant lifeThemesName : []
 
 // **************************************************************** Code
 
     Component.onCompleted: {
         app.log("LifeScreen onCompleted Started")
+        getLifeData()
         lifeSetup()
-        selectTheme( selectedTheme )   // color and shape settings
-        if (isNxt) { addExample("Gosper Gun 1") }
-        else       { addExample("Glider") }
         app.log("LifeScreen onCompleted Completed")
     }
 
@@ -461,13 +256,21 @@ To locate sections with details use your editor to search for ****
 
     onVisibleChanged: {
         if ( visible ) {
-            debug && app.log("You can see me !   8-)")
-// we need to know if we are in dimState (hide things, change colors...)
+            if (prevScreenMode == "" ) { 
+                // this is the first time the app starts; set Theme and Example
+                selectTheme( activeThemeName )   // color and shape settings 
+                if (isNxt) { addExample(lifeExamplesName.indexOf("Glider")) }
+                else       { addExample(lifeExamplesName.indexOf("Glider")) }                
+            }
+// Trick : We need to know if we are in dimState (hide things, change colors...)
             dimState = app.lifeTile.dimState
-        } else { // the screen is hiding and we want it to com back when the app is still running
-            debug && app.log("You can't see me ! |-)")
-// Trick to keep stay on screen during dimState
-// The tile uses app.keepLifeOnScreen to check if it needs to call this screen in dimState
+            if (! alive) { // This will remove the messages from the tile
+                app.themesCountPrevious   = app.themesCount
+                app.examplesCountPrevious = app.examplesCount
+            }
+        } else { 
+            // the screen is hiding and we want it to com back when the app is still running
+// Trick : The tile uses app.keepLifeOnScreen to check if it needs to call this screen in dimState
             app.keepLifeOnScreen = alive
         }
     }
@@ -490,9 +293,23 @@ To locate sections with details use your editor to search for ****
 // ---------------------------------------------------------------------
 
     Timer {
+        id: updateLifeDataTimer
+        interval: debug ? 10000 : (60 * 60 * 1000) // once every 10 seconds / once every hour
+        running: true
+        repeat: true
+        triggeredOnStart : false
+        onTriggered: {
+//            app.log("updateLifeDataTimer disabled")
+            getLifeData() 
+        }
+    }
+
+// ---------------------------------------------------------------------
+
+    Timer {
         id: lifeTimer
-        interval: isNxt ? 500 * (10 - speed) : 1000 * (10 - speed)
-        running: alive
+        interval: isNxt ? 500 * (5 - Math.floor(speed / 2) ) : 1000 * (5 - Math.floor(speed / 2) ) 
+        running: alive && ( ! selectThemeMenu.showScrollMenu )
         repeat: true
         onTriggered: {
 // we may run into dimState and need the right value
@@ -641,6 +458,8 @@ To locate sections with details use your editor to search for ****
             }
 */
 
+/*
+
 // ************************************* neighbour algorithm 2a
 // like 2 not looping around cell but simply adding all cells in one statement
 // avoiding 2 more loops
@@ -675,6 +494,44 @@ To locate sections with details use your editor to search for ****
 //                            lifeModel.setProperty(r * columns - (columns + 1) + c , "lifeState", false)
                             lifeModel.setProperty(r * columns - columns1 + c , "lifeState", false)
                      }
+                }
+            }
+*/
+
+// ************************************* neighbour algorithm 3
+
+// using some techniques from above Plus : https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Algorithms
+//
+// To avoid decisions and branches in the counting loop, the rules can be rearranged from an egocentric 
+// approach of the inner field regarding its neighbours to a scientific observer's viewpoint: 
+// if the sum of all nine fields in a given neighbourhood is three, 
+// the inner field state for the next generation will be life; 
+// if the all-field sum is four, the inner field retains its current state; 
+// and every other sum sets the inner field to death. 
+//
+            var neighbourhood = 0
+
+            for (var r = 1; r<=rows ; r++ ) {
+                for (var c = 1 ; c<=columns; c++) {
+                    grid2index= r * grid2columns + c
+
+                    neighbourhood=arrayHiddenGrid[grid2index + offsetlt] + arrayHiddenGrid[grid2index - grid2columns] + arrayHiddenGrid[grid2index + offsetrt]
+                                + arrayHiddenGrid[grid2index - 1]        + arrayHiddenGrid[grid2index ]               + arrayHiddenGrid[grid2index + 1]
+                                + arrayHiddenGrid[grid2index + offsetlb] + arrayHiddenGrid[grid2index + grid2columns] + arrayHiddenGrid[grid2index + offsetrb]
+
+                    if (neighbourhood == 3) {     
+                        if (arrayHiddenGrid[grid2index] != 1 ) {
+                            lifeModel.setProperty(r * columns - columns1 + c , "lifeState", true)
+                            ld1.push(grid2index)
+                        }
+                    } else { 
+                        if (arrayHiddenGrid[grid2index] != 0 ) {
+                            if ( neighbourhood != 4 ) {
+                                lifeModel.setProperty(r * columns - columns1 + c , "lifeState", false)
+                                ld0.push(grid2index)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -715,6 +572,82 @@ To locate sections with details use your editor to search for ****
 
 // ***************************************************** Setup functions
 
+    function getLifeData() {
+
+        var url="https://raw.githubusercontent.com/JackV2020/appData/main/lifeData/lifeData.json"
+        
+        if (useTestData) { url="https://raw.githubusercontent.com/JackV2020/appDataTest/main/lifeData/lifeData.json" }
+
+        if (useJacksData) { url="http://veraart.thehomeserver.net:8888/lifeData.json" }
+
+        debug && app.log("------------ getLifeData : url : "+url+ " debug : "+debug)
+
+        var xmlhttpLifeExamples = new XMLHttpRequest();
+
+        xmlhttpLifeExamples.open("GET", url, true);
+
+        xmlhttpLifeExamples.onreadystatechange = function() {
+
+            if (xmlhttpLifeExamples.readyState == XMLHttpRequest.DONE) {
+
+                if (xmlhttpLifeExamples.status === 200) {
+
+                    jsonLifeData = JSON.parse(xmlhttpLifeExamples.response);
+
+                    debug && app.log("------------ getLifeData : add lifeExamples")
+                    lifeExamplesName=[]
+                    var i = 0
+                    var oke=true
+                    while(oke) {
+                        try {
+                            if (isNxt || debug ) {
+                                debug && app.log("Add : "+jsonLifeData.lifeExamples[i]['Name'])
+                                lifeExamplesName.push(jsonLifeData.lifeExamples[i]['Name'])
+                            } else {
+                                if (jsonLifeData.lifeExamples[i]['Type'] == "T1") { // Toon1 : T1 only
+                                    debug && app.log("Add : "+jsonLifeData.lifeExamples[i]['Name'])
+                                    lifeExamplesName.push(jsonLifeData.lifeExamples[i]['Name'])
+                                }
+                            }
+                            i++
+                        } catch(e) {
+                            oke = false
+                            app.examplesCount = lifeExamplesName.length
+                            if (app.examplesCountPrevious == 0) {app.examplesCountPrevious = lifeExamplesName.length}
+                            if (app.examplesCountNew  != 0) { app.log("------------ getLifeData : lifeExamples count : "+lifeExamplesName.length+" new "+app.examplesCountNew )}
+                        }
+                    }
+
+                    debug && app.log("------------ getLifeData : add lifeThemes")
+                    lifeThemesName=[]
+                    i = 0
+                    oke=true
+                    while(oke) {
+                        try {
+                            debug && app.log("Add : "+jsonLifeData.lifeThemes[i]['Name'])
+                            lifeThemesName.push(jsonLifeData.lifeThemes[i]['Name'])
+                            i++
+                        } catch(e) {
+                            oke = false
+                            app.themesCount = lifeThemesName.length
+                            if (app.themesCountPrevious == 0) {app.themesCountPrevious = lifeThemesName.length}
+                            if (app.themesCountNew != 0) {app.log("------------ getLifeData : lifeThemes count   : "+lifeThemesName.length+" new "+app.themesCountNew)}
+                        }
+                    }
+                } else {
+
+                   app.log(url +" Return status: " + xmlhttpLifeExamples.status)
+
+                }
+            }
+        }
+
+        xmlhttpLifeExamples.send();
+    
+    }
+
+// ---------------------------------------------------------------------
+
 // Data for the GridView is stored in a model which is a long list like
 // an array which fills the grid row by row and starts in the upper left
 // corner.
@@ -735,11 +668,14 @@ To locate sections with details use your editor to search for ****
 // ---------------------------------------------------------------------
 
     function resetBoard() {
+
+        // clear model
         for( var i = 0 ; i < (maxcolumns*maxrows) ; i++ ) {
             lifeModel.setProperty(i , "lifeState", false)
-            arrayHiddenGrid[i]=0
         }
-        for (var i = 0 ; i < (maxcolumns*2) + (maxrows*2) + 4 ; i++ ){
+
+        // clear hidden array
+        for (var i = 0 ; i < (maxcolumns*2) * (maxrows*2) ; i++ ){
             arrayHiddenGrid[i]=0
         }
     }
@@ -772,17 +708,21 @@ To locate sections with details use your editor to search for ****
 
 // ***************************************************** Themes function
 
-// Theme 1 has a heartbeat like thing in it ;-)
+// Some themes have a heartbeat setting in it
 
+    property int activeTheme : 0
+    property string activeThemeName : "Black/White"
+    
     Timer {
-        id: theme1HeartBeatTimer
-        interval: dimState ? 10000 : 1000
-        running: alive && (selectedTheme == 1)
+        id: heartBeatTimer
+        interval: dimState ? Math.floor(10000 * heartBeat) : Math.floor(1000 * heartBeat)
+        running: alive && (heartBeat > 0 )
         repeat: true
         onTriggered: {
             if (borderWidthLife == cellSize)
-                  { borderWidthLife = cellSize / 3 ; borderWidthDimLife = cellSize / 3  }
-             else { borderWidthLife = cellSize     ; borderWidthDimLife = cellSize }
+            {   borderWidthLife    = eval(jsonLifeData.lifeThemes[activeTheme]['borderWidthLife'])
+                borderWidthDimLife = eval(jsonLifeData.lifeThemes[activeTheme]['borderWidthDimLife'])  }
+            else { borderWidthLife = cellSize     ; borderWidthDimLife = cellSize }
         }
     }
 
@@ -790,153 +730,118 @@ To locate sections with details use your editor to search for ****
 
     function selectTheme(theme) {
 
-        selectedTheme = theme
+        activeThemeName = theme
 
-        switch (theme) {
-        case 0:                               // theme 1 : Black / White
-            // Life screen setings
-                 radiusLife              = 0
-            // Live cell
-                 colorLife               = "black"
-                 borderColorLife         = "black"
-                 borderWidthLife         = 0
-            // Dead not clickable
-                 colorDeadNoClick        = "lightgrey"
-                 borderColorDeadNoClick  = "lightgrey"
-                 borderWidthDeadNoClick  = 0
-            // Dead clickable
-                 colorDeadClick          = "grey"
-                 borderColorDeadClick    = "black"
-                 borderWidthDeadClick    = 1
-
-            // dimState settings
-                 radiusDim              = 0
-            // Live cell
-                 colorDimLife           = "lightgrey"
-                 borderColorDimLife     = "lightgrey"
-                 borderWidthDimLife     = 0
-            // Dead cell
-                 colorDimDead           = "black"
-                 borderColorDimDead     = "black"
-                 borderWidthDimDead     = 0
-            break
-        case 1:                    // theme 2 : Red Rings with heartbeat
-            // Life screen setings
-                 radiusLife              = cellSize / 2
-            // Live cell
-                 colorLife               = "white"
-                 borderColorLife         = "red"
-                 borderWidthLife         = cellSize / 3
-            // Dead not clickable
-                 colorDeadNoClick        = "lightyellow"
-                 borderColorDeadNoClick  = "white"
-                 borderWidthDeadNoClick  = 1
-            // Dead clickable
-                 colorDeadClick          = "white"
-                 borderColorDeadClick    = "pink"
-                 borderWidthDeadClick    = 1
-
-            // dimState settings
-                 radiusDim              = cellSize / 2
-            // Live cell
-                 colorDimLife           = "white"
-                 borderColorDimLife     = "red"
-                 borderWidthDimLife     = cellSize / 3
-            // Dead cell
-                 colorDimDead           = "black"
-                 borderColorDimDead     = "black"
-                 borderWidthDimDead     = 0
-            break
-        case 2:                                       // theme 3 : Brown
-            // Life screen setings
-                 radiusLife              = cellSize / 4
-            // Live cell
-                 colorLife               = "brown"
-                 borderColorLife         = "brown"
-                 borderWidthLife         = 0
-            // Dead not clickable
-                 colorDeadNoClick        = "lightyellow"
-                 borderColorDeadNoClick  = "white"
-                 borderWidthDeadNoClick  = 1
-            // Dead clickable
-                 colorDeadClick          = "white"
-                 borderColorDeadClick    = "pink"
-                 borderWidthDeadClick    = 1
-
-            // dimState settings
-                 radiusDim              = cellSize / 4
-            // Live cell
-                 colorDimLife           = "brown"
-                 borderColorDimLife     = "broen"
-                 borderWidthDimLife     = 0
-            // Dead cell
-                 colorDimDead           = "black"
-                 borderColorDimDead     = "black"
-                 borderWidthDimDead     = 0
-            break
-        case 3:                                        // theme 4 : Lime
-            // Life screen setings
-                 radiusLife              = 0
-            // Live cell
-                 colorLife               = "lime"
-                 borderColorLife         = "lime"
-                 borderWidthLife         = 0
-            // Dead not clickable
-                 colorDeadNoClick        = "lightyellow"
-                 borderColorDeadNoClick  = "white"
-                 borderWidthDeadNoClick  = 1
-            // Dead clickable
-                 colorDeadClick          = "white"
-                 borderColorDeadClick    = "yellow"
-                 borderWidthDeadClick    = 1
-
-            // dimState settings
-                 radiusDim              = 0
-            // Live cell
-                 colorDimLife           = "lime"
-                 borderColorDimLife     = "lime"
-                 borderWidthDimLife     = 0
-            // Dead cell
-                 colorDimDead           = "black"
-                 borderColorDimDead     = "black"
-                 borderWidthDimDead     = 0
-            break
+// lifeData may have been updated and the name may have changed / theme removed so I need the next 2 to compensate this
+        activeTheme = Math.max(0,lifeThemesName.indexOf(activeThemeName) )        
+        if (activeThemeName != jsonLifeData.lifeThemes[activeTheme]['Name']) {
+            activeThemeName = jsonLifeData.lifeThemes[activeTheme]['Name']
+            selectThemeMenu.buttonText = activeThemeName
         }
+
+        try     { heartBeat                 = eval(jsonLifeData.lifeThemes[activeTheme]['heartBeat']) }
+        catch(e){ heartBeat                 = 0 }
+    // Life screen setings
+        try     { radiusLife                = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['radiusLife']+")") }
+        catch(e){ radiusLife                = 0 }
+    // Live cell
+        try     { colorLife                 = jsonLifeData.lifeThemes[activeTheme]['colorLife']}
+        catch(e){ colorLife                 = "transparent" }
+        try     { borderColorLife           = jsonLifeData.lifeThemes[activeTheme]['borderColorLife']}
+        catch(e){ borderColorLife           = "transparent" }
+        try     { borderWidthLife           = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['borderWidthLife']+")")}
+        catch(e){ borderWidthLife           = 0 }
+
+        try     { cellText                  = jsonLifeData.lifeThemes[activeTheme]['cellText']}
+        catch(e){ cellText                  = "" }
+        try     { cellTextColor             = jsonLifeData.lifeThemes[activeTheme]['cellTextColor']}
+        catch(e){ cellTextColor             = "transparent" }
+        try     { cellTextPixelSize         = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['cellTextPixelSize']+")")}
+        catch(e){ cellTextPixelSize         = 1 }
+
+    // Dead not clickable
+
+        try     { colorDeadNoClick          = jsonLifeData.lifeThemes[activeTheme]['colorDeadNoClick'] }
+        catch(e){ colorDeadNoClick          = "transparent" }
+        try     { borderColorDeadNoClick    = jsonLifeData.lifeThemes[activeTheme]['borderColorDeadNoClick'] }
+        catch(e){ borderColorDeadNoClick    = "transparent" }
+        try     { borderWidthDeadNoClick    = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['borderWidthDeadNoClick']+")") }
+        catch(e){ borderWidthDeadNoClick    = 0 }
+    // Dead clickable
+        try     { colorDeadClick            = jsonLifeData.lifeThemes[activeTheme]['colorDeadClick'] }
+        catch(e){ colorDeadClick            = "transparent" }
+        try     { borderColorDeadClick      = jsonLifeData.lifeThemes[activeTheme]['borderColorDeadClick'] }
+        catch(e){ borderColorDeadClick      = "transparent" }
+        try     { borderWidthDeadClick      = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['borderWidthDeadClick']+")")}
+        catch(e){ borderWidthDeadClick      = 0 }
+
+    // dimState settings
+        try     { radiusDim                 = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['radiusDim']+")") }
+        catch(e){ radiusDim                 = 0 }
+    // Live cell
+        try     { colorDimLife              = jsonLifeData.lifeThemes[activeTheme]['colorDimLife'] }
+        catch(e){ colorDimLife              = "transparent" }
+        try     { borderColorDimLife        = jsonLifeData.lifeThemes[activeTheme]['borderColorDimLife']}
+        catch(e){ borderColorDimLife        = "transparent" }
+        try     { borderWidthDimLife        = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['borderWidthDimLife']+")")}
+        catch(e){ borderWidthDimLife        = 0 }
+    // Dead cell
+        try     { colorDimDead              = jsonLifeData.lifeThemes[activeTheme]['colorDimDead']}
+        catch(e){ colorDimDead              = "transparent" }
+        try     { borderColorDimDead        = jsonLifeData.lifeThemes[activeTheme]['borderColorDimDead']}
+        catch(e){ borderColorDimDead        = "transparent" }
+        try     { borderWidthDimDead        = eval("Math.floor("+jsonLifeData.lifeThemes[activeTheme]['borderWidthDimDead']+")")}
+        catch(e){ borderWidthDimDead        = 0 }
 
     }
 
+// ---------------------------------------------------------------------
 
 // **************************************************** Preset functions
 
-    function togglePreset(row,col,rowOrientation,colOrientation,dots) {
+// Make the Offset cell blink
 
-// This function is used to add/remove a complete composition on the screen.
-//
-//  rows are numbered from top to bottom, columns from left to right
-//
-// columns 0 1 2 3 ..
-//  rows 0
-//       1
-//       2
-//       3
-//       :
-//
-//  row, col  : position for the origin row and column of the preset
-//              2,4 means 3rd row, 5th column because count starts at 0
-//
-//  dots      : array of points of Preset like :
-//             [ [0,1] , [1,2] , [2,0] , [2,1] , [2,2] ]
-//
-//          the . in the text below point at the origin
-//                  .1                     .#
-//        order >     2     result >         #
-//                  345                    ###
-//
-//  The next 2 allow the composition to be be rotated on the screen :
-//
-//  rowOrientation    : 1 build down  ; -1 build up
-//  colOrientation    : 1 build right ; -1 build left
-//
+    Timer {
+        id: offsetTimer
+        interval: 1000
+        running: isNxt && (screenMode == "Preset" )
+        repeat: true
+        onTriggered: { showOffset = ! showOffset }
+    }
+
+// ---------------------------------------------------------------------
+
+    function togglePreset(row,col,rowOrientation,colOrientation,dots) {
+/*
+
+   This function is used to add/remove a complete composition on the screen.
+  
+    rows are numbered from top to bottom, columns from left to right
+  
+   columns 0 1 2 3 ..
+    rows 0
+         1
+         2
+         3
+         :
+  
+    row, col  : position for the origin row and column of the preset
+                2,4 means 3rd row, 5th column because count starts at 0
+  
+    dots      : array of points of Preset like :
+               [ [0,1] , [1,2] , [2,0] , [2,1] , [2,2] ]
+  
+            the . in the text below point at the origin
+                    .1                     .#
+          order >     2     result >         #
+                    345                    ###
+  
+    The next 2 allow the composition to be be rotated on the screen :
+  
+    rowOrientation    : 1 build down  ; -1 build up
+    colOrientation    : 1 build right ; -1 build left
+  
+*/
         for (var i = 0 ; i < dots.length ; i ++) {
             toggleCell((row+rowOrientation*dots[i][0]),
                        (col+colOrientation*dots[i][1]))
@@ -946,53 +851,77 @@ To locate sections with details use your editor to search for ****
 // ---------------------------------------------------------------------
 
     function minRowsCols(minrows,mincols) {
-// can be used to force screen size
-            if ((rows < minrows) || (columns<mincols) ) {
-                rows=minrows
-                columns=mincols
-                preset_rows=minrows
-                preset_columns=mincols
-                resetBoard()
-            }
+// Can be used to force screen size
+        if ((rows < minrows) || (columns<mincols) ) {
+            rows=minrows
+            columns=mincols
+            preset_rows=minrows
+            preset_columns=mincols
+            resetBoard()
+        }
+    }
+// ---------------------------------------------------------------------
+
+    function setRowsCols(minrows,mincols) {
+// Can be used to force screen size
+        if ((rows != minrows) || (columns != mincols) ) {
+            rows=minrows
+            columns=mincols
+            preset_rows=minrows
+            preset_columns=mincols
+            resetBoard()
+        }
     }
 
 // ---------------------------------------------------------------------
 
-    function addExample(selectedItem) {
-        switch (selectedItem) {
-        
-// What is available on Toon 1 depends on 'property variant selectExamples'
+    function addExample(itemSelected) {
 
-// These run on Toon 1 and Toon 2
-
-        case "Toon"             : wrapMode = false; minRowsCols(12,36); togglePreset(2,2,1,1,toonData); break
-        case "Blinker"          : wrapMode = false; minRowsCols(5,5); togglePreset(1,2,1,1,blinkerData); break
-        case "To 4 Blinkers"    : wrapMode = false; minRowsCols(11,11); togglePreset(4,4,1,1,to4BlinkersData); break
-        case "Random"           : randomLife(); break
-        case "Glider"           : wrapMode = true; minRowsCols(7,15); speed = 4 ; togglePreset(1,1,1,1,gliderData); break
-        case "Small Spaceship"  : wrapMode = true; minRowsCols(7,20); speed = 6; togglePreset(1,0,1,1,smallShipData ); break
-        case "Pentadecathlon"   : wrapMode = false; minRowsCols(16,9); speed = 9; togglePreset(4,3,1,1,pentadecathlonData); break
-
-// These are to intensive for Toon 1 and run on Toon 2 only
-
-        case "Gosper Gun 1"     : wrapMode = false; minRowsCols(22,36); speed = 6 ; togglePreset(0, 0,1,1,gosperGliderGunData); break
-        case "Other Gun"        : wrapMode = false; minRowsCols(37,48); speed = 6 ; togglePreset(0, 0,1,1,otherGliderGunData); break
-        case "Pi"               : minRowsCols(24,24); togglePreset(0, 0,1,1,piData); break
-        case "4 Gliders"        : wrapMode = true; minRowsCols(10,20); speed = 9
-                                togglePreset(1,1,1,1,gliderData); togglePreset(1,6,1,1,gliderData); togglePreset(1,11,1,1,gliderData); togglePreset(6,14,1,1,gliderData); break
-        case "3 Small Spaceships" : wrapMode = true; minRowsCols(8,40); speed = 6
-                                togglePreset(1,0,1,1,smallShipData ); togglePreset(7,8,-1,1,smallShipData ); togglePreset(2,25,1,1,smallShipData ); break
-        case "Pulsar"         : wrapMode = false; minRowsCols(15,15); speed = 6
-                                togglePreset( 1,1,1,1,pulsarData ); break
-        case "5 Pulsars"        : wrapMode = false; minRowsCols(39,39); speed = 6
-                                togglePreset( 1,1,1,1,pulsarData ); togglePreset( 1,25,1,1,pulsarData ); togglePreset(13,13,1,1,pulsarData );
-                                togglePreset(25,1,1,1,pulsarData ); togglePreset(25,25,1,1,pulsarData ); break
-        case "Big Spaceship"   : wrapMode = true; minRowsCols(21,50); speed = 6; togglePreset(1,34,1,-1,bigShipData); break
-        case "Upwards Spaceship": wrapMode = true; minRowsCols(30,12); speed = 9 ; togglePreset(18,2,1,1,upShipData); break
-
-        default             : app.log("Error : >"+selectedItem+"< Not implemented ")
+        if (lifeExamplesName[itemSelected] == "Random") {
+            randomLife()
+        } else {
+            if (typeof jsonLifeData.lifeExamples[itemSelected]['WrapMode'] !== "undefined" )
+                { wrapMode = jsonLifeData.lifeExamples[itemSelected]['WrapMode'] }
+            if (typeof jsonLifeData.lifeExamples[itemSelected]['MinRowsCols'] !== "undefined" )
+                { minRowsCols(jsonLifeData.lifeExamples[itemSelected]['MinRowsCols'][0],jsonLifeData.lifeExamples[itemSelected]['MinRowsCols'][1]) }
+            if (typeof jsonLifeData.lifeExamples[itemSelected]['SetRowsCols'] !== "undefined" )
+                { 
+                    setRowsCols(jsonLifeData.lifeExamples[itemSelected]['SetRowsCols'][0],jsonLifeData.lifeExamples[itemSelected]['SetRowsCols'][1])
+                    presetRowOffset = 0
+                    presetColumnOffset = 0
+                }
+            if (typeof jsonLifeData.lifeExamples[itemSelected]['Speed'] !== "undefined" ) { speed = jsonLifeData.lifeExamples[itemSelected]['Speed'] }
+            var i = 0
+            var oke = true
+            while(oke) {
+                try {
+                        if ( (presetRowOffset == 0) && ( presetColumnOffset == 0 ) ) {
+                            togglePreset(
+                                jsonLifeData.lifeExamples[itemSelected]['Positioning'][i][0],
+                                jsonLifeData.lifeExamples[itemSelected]['Positioning'][i][1],
+                                jsonLifeData.lifeExamples[itemSelected]['Positioning'][i][2],
+                                jsonLifeData.lifeExamples[itemSelected]['Positioning'][i][3],
+                                jsonLifeData.lifeExamples[itemSelected]['Array']
+                            )
+                        } else {
+                            togglePreset(
+                                presetRowOffset,
+                                presetColumnOffset,
+                                jsonLifeData.lifeExamples[itemSelected]['Positioning'][i][2],
+                                jsonLifeData.lifeExamples[itemSelected]['Positioning'][i][3],
+                                jsonLifeData.lifeExamples[itemSelected]['Array']
+                            )
+                        }
+                        i++
+                    }
+                catch(e) { 
+                        oke = false ; 
+                    }
+            }
         }
     }
+    
+// ---------------------------------------------------------------------
 
 // *************************************************** Cover Home Button
 
@@ -1009,8 +938,8 @@ To locate sections with details use your editor to search for ****
 
 // ********************************************************* Info Screen
 
-// This is the screen which is shown as first after a GUI restart / reboot
-// It is also available as a button on the Preset screen
+// This Info screen is shown as first after a GUI restart / reboot
+// This Info screen is also available as a button on the Preset screen
 
     Rectangle {
         id                      : infoScreen
@@ -1042,18 +971,59 @@ To locate sections with details use your editor to search for ****
             text:
             "Conway's game of life"
             +"\n\nFor a full description see : https://en.m.wikipedia.org/wiki/Conway's_Game_of_Life"
+
+            + "\n\nThe Presets page has examples and the Life page has themes which all come directly from the internet."
+            + " When you want see that, or better contribute, see lifeData in :"
+            + "\nhttps://github.com/JackV2020/appDataTest"
+
             +"\n\nIn short Life is a zero player game on a 2 dimensional plane with 3 rules :"
+
             +"\n\n1) Any live cell with two or three live neighbours survives."
             +  "\n2) Any dead cell with three live neighbours becomes a live cell."
             +  "\n3) All other live cells die in the next generation. Similarly, all other dead cells stay dead."
+
             +"\n\nThis implementation has no plane but uses either a room with walls or a wrap mode where the opposite sides and all 4 corners are connected."
             +  "\nThis causes live organisms to collide into the walls or to 'travel' to the other side of the board."
 
-            + "\n\nOn the Presets page are some examples which can be found on many places on the Internet."
-            +   "\nWhen you have issues, remarks or suggestions for additional examples you can find me on github as JackV2020."
+            + "\n\nThe inital setup of the app is an example from the Presets page."
+            +   "\nAll you need to do is click \"Start Life\"." 
 
-            + "\n\nThe inital setup of the app is an example of the presets."
-            +   "\nAll you need to do is click \"Start Life\" and increase the Speed. "
+        }
+
+        YaLabel {
+            id                  : toggleuseTestData
+            buttonText          : useTestData ? "Test Data debug : " + debug : ""
+            width               : buttonWidth
+            height              : buttonHeight
+            hoveringEnabled     : false
+
+            buttonActiveColor   : "transparent"
+            buttonHoverColor    : "transparent"
+            buttonSelectedColor : "transparent"
+            buttonBorderWidth   : 0
+            anchors {
+                top             : parent.top
+                left            : parent.left
+            }
+            onClicked           : { useTestData = ! useTestData ; useJacksData = false ;  getLifeData() }
+        }
+
+        YaLabel {
+            id                  : toggleuseJacksData
+            buttonText          : useJacksData ? "Jacks Data debug : " + debug  : ""
+            width               : buttonWidth
+            height              : buttonHeight
+            hoveringEnabled     : false
+
+            buttonActiveColor   : "transparent"
+            buttonHoverColor    : "transparent"
+            buttonSelectedColor : "transparent"
+            buttonBorderWidth   : 0
+            anchors {
+                top             : parent.top
+                right           : parent.right
+            }
+            onClicked           : { debug = ! debug ; useJacksData =! useJacksData ; useTestData = false ;  getLifeData() }
         }
 
         YaLabel {
@@ -1073,14 +1043,51 @@ To locate sections with details use your editor to search for ****
 
 // ******************************************************** Life Buttons
 
+// A title for the screen
+
+    YaLabel {
+        id                  : lifeTitleButton
+        visible             : ( screenMode == "Life" ) && (! dimState )
+        buttonText          : alive ? "It's alive !! , let's wait for the screen to dim...." : "Game of Life"
+        width               : alive ? buttonWidth * 4 : buttonWidth * 2
+        height              : buttonHeight
+        hoveringEnabled     : false
+        buttonActiveColor   : colors.canvas
+        buttonSelectedColor : colors.canvas
+        buttonHoverColor    : colors.canvas
+        anchors {
+            top             : parent.top
+            topMargin       : buttonHeight * -1
+            horizontalCenter: parent.horizontalCenter
+        }
+    }
+
+    Text {
+        id                  : lifeScreenTextReminder
+        text                : "Scroll and click 2 x to select" 
+        visible             : ( screenMode == "Life" ) && selectThemeMenu.showScrollMenu
+        height              : buttonHeight
+        verticalAlignment   : Text.AlignVCenter
+        anchors {
+            verticalCenter  : lifeTitleButton.verticalCenter
+            right           : lifeTitleButton.left
+            rightMargin     : buttonHeight / 2
+        }
+        font    {
+            pixelSize       : isNxt ? 20 : 16
+            family          : qfont.regular.name
+            bold            : true
+        }
+        color               : "blue"
+    }
+
     ScrollMenu {
         id                  : selectThemeMenu
         visible             : ( screenMode == "Life" ) && (! dimState) // hide buttons in dimstate
         buttonText          : "Select Theme"
-        scrollmenuArray     : selectThemesData
-        scrollMenuTitle     : "Select Theme"
-        autoHideScrollMenuSeconds : 3
-        showItems           : 4
+        scrollmenuArray     : lifeThemesName
+//        autoHideScrollMenuSeconds : 5
+        showItems           : 7
         anchors {
             top             : parent.top
             right           : boardButtons.right
@@ -1089,7 +1096,7 @@ To locate sections with details use your editor to search for ****
         fontFamily          : qfont.regular.name
         buttonPixelSize     : isNxt ? 20 : 16
         itemPixelSize       : isNxt ? 20 : 16
-        onItemSelected      : { selectTheme(selectedItemIndex) }
+        onItemSelected      : { selectTheme(selectedItem) }
     }
 
 	Rectangle {
@@ -1179,14 +1186,17 @@ To locate sections with details use your editor to search for ****
 
         YaLabel {
             id              : lifeModeButton
-            buttonText      : modeClickable ? "Click cells" : "No clicks"
+            buttonText      : "No clicks"
+            buttonText2     : "Click cells"
+            buttonText2Stack: true
+            buttonText2Swap : true
             width           : buttonWidth
             height          : parent.height
             hoveringEnabled : isNxt
             anchors {
                 left        : lifeSpeedplus.right
             }
-            onClicked       : { modeClickable = ! modeClickable }
+            onClicked       : { selected = ! selected ; modeClickable = ! modeClickable }
         }
 
         YaLabel {
@@ -1226,87 +1236,106 @@ To locate sections with details use your editor to search for ****
 
 // This is the life GridView as shown on the main app screen
 
-// A title for the screen
-
-    YaLabel {
-        visible             : ( screenMode == "Life" ) && (! dimState )
-        buttonText          : alive ? "It's alive !! , let's wait for the screen to dim...." : "Game of Life"
-        width               : alive ? buttonWidth * 4 : buttonWidth * 2
-        height              : buttonHeight
-        hoveringEnabled     : false
-        buttonActiveColor   : colors.canvas
-        buttonSelectedColor : colors.canvas
-        buttonHoverColor    : colors.canvas
-        anchors {
-            bottom          : board.top
-            bottomMargin    : 2
-            horizontalCenter: parent.horizontalCenter
-        }
-    }
-
-// the board which we see on the screen
+// The board which we see on the screen
 
 	Rectangle {
-        id                  : board
+        id                  : boardRim
         visible             : ( screenMode == "Life" )
-        width               : boardWidth
-        height              : boardHeight
+        width               : (wrapMode) ? (boardWidth + 2) : (boardWidth + 6)
+        height              : (wrapMode) ? (boardHeight +2) : (boardHeight +6)
 		color               : dimState ? "black" : colors.canvas
+        border {
+            width           : (wrapMode) ? 1 : 3
+            color           : "black"
+        }
         anchors {
-            top             : parent.top
+            bottom          : boardButtons.top
+//            bottomMargin    : (wrapMode) ? 4 : 2
+            bottomMargin    : (wrapMode) ? 4 + ( (baseHeight - boardHeight ) / 2 ) : 2 + ( (baseHeight - boardHeight ) / 2 )
             horizontalCenter: parent.horizontalCenter
         }
 
-		ListModel {
-			id              : lifeModel
-		}
+        Rectangle {
+            id                  : board
+            visible             : ( screenMode == "Life" )
+            width               : boardWidth
+            height              : boardHeight
+            color               : dimState ? "black" : colors.canvas
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                verticalCenter: parent.verticalCenter
+            }
 
-		GridView {
-			id              : lifeGrid
-			anchors.fill    : parent
-			cellWidth       : cellSize
-			cellHeight      : cellSize
-			model           : lifeModel
+            ListModel {
+                id              : lifeModel
+            }
 
-// Activate one of the delegates below depending on the looks you want
-// just copy and paste over the current one
+            GridView {
+                id              : lifeGrid
+                anchors.fill    : parent
+                cellWidth       : cellSize
+                cellHeight      : cellSize
+                model           : lifeModel
+                
+                interactive: false
 
-			delegate:
-            Rectangle {
-                enabled     : ( modeClickable )
-                width       : cellSize
-                height      : cellSize
-                radius      : dimState ? radiusDim : radiusLife
-                color       : dimState ? model.lifeState ? colorDimLife
-                                                         : colorDimDead
-                                       : model.lifeState ? colorLife
-                                                         : modeClickable ? colorDeadClick
-                                                                         : colorDeadNoClick
-                border {
-                    width   : dimState ? model.lifeState ? borderWidthDimLife
-                                                         : borderWidthDimDead
-                                       : model.lifeState ? borderWidthLife
-                                                         : modeClickable ? borderWidthDeadClick
-                                                                         : borderWidthDeadNoClick
+                delegate:
+                Rectangle {
+                    enabled     : ( modeClickable )
+                    width       : cellSize
+                    height      : cellSize
+                    radius      : dimState ? radiusDim : radiusLife
+                    color       : dimState ? model.lifeState ? colorDimLife
+                                                             : colorDimDead
+                                           : model.lifeState ? colorLife
+                                                             : modeClickable ? colorDeadClick
+                                                                             : colorDeadNoClick
+                    border {
+                        width   : dimState ? model.lifeState ? borderWidthDimLife
+                                                             : borderWidthDimDead
+                                           : model.lifeState ? borderWidthLife
+                                                             : modeClickable ? borderWidthDeadClick
+                                                                             : borderWidthDeadNoClick
 
-                    color   : dimState ? model.lifeState ? borderColorDimLife
-                                                         : borderColorDimDead
-                                       : model.lifeState ? borderColorLife
-                                                         : modeClickable ? borderColorDeadClick
-                                                                         : borderColorDeadNoClick
+                        color   : dimState ? model.lifeState ? borderColorDimLife
+                                                             : borderColorDimDead
+                                           : model.lifeState ? borderColorLife
+                                                             : modeClickable ? borderColorDeadClick
+                                                                             : borderColorDeadNoClick
+                    }
+
+                    Text {
+                        visible                 : model.lifeState
+                        text                    : cellText
+                        color                   : cellTextColor
+
+                        horizontalAlignment     : Text.AlignHCenter
+                        verticalAlignment       : Text.AlignVCenter
+                        anchors {
+                            horizontalCenter    : parent.horizontalCenter
+                            verticalCenter      : parent.verticalCenter
+                        }
+                        font    {
+//                            pixelSize           : isNxt ? 20 : 16
+                            pixelSize           : cellTextPixelSize
+                            family              : qfont.regular.name
+                            bold                : false
+                        }
+                    }
+                    
+
+                    MouseArea {
+                        anchors.fill    : parent
+                        onClicked       : { toggleCell(Math.floor(index / columns),(index%columns)) }
+                    }
+
+                    visible     : (index < columns * rows )
+
                 }
-
-                MouseArea {
-                    anchors.fill    : parent
-                    onClicked       : { toggleCell(Math.floor(index / columns),(index%columns)) }
-				}
-
-                visible     : (index < columns * rows )
-
             }
         }
-    }
 
+    }
 // ************************ Presets Screen Mini Board + Text + Selection
 
     Rectangle {
@@ -1315,7 +1344,7 @@ To locate sections with details use your editor to search for ****
         width               : baseWidth
         height              : baseHeight
 		color               : colors.canvas
-        border.width        : 1
+        border.width        : 0
         anchors {
             top             : parent.top
             horizontalCenter: parent.horizontalCenter
@@ -1323,8 +1352,8 @@ To locate sections with details use your editor to search for ****
 
         Rectangle {
             id              : miniboardFrame
-            width           : ( isNxt ? 6 : 5 ) * maxcolumns + 4
-            height          : ( isNxt ? 6 : 5 ) * maxrows + 4
+            width           : ( isNxt ? 6 : 7 ) * maxcolumns + 4
+            height          : ( isNxt ? 6 : 7 ) * maxrows + 4
             color           : colors.canvas
             border.width    : 2
             anchors {
@@ -1337,8 +1366,8 @@ To locate sections with details use your editor to search for ****
 
         Rectangle {
             id                  : miniboard
-            width               : ( isNxt ? 6 : 5 ) * columns
-            height              : ( isNxt ? 6 : 5 ) * rows
+            width               : ( isNxt ? 6 : 7 ) * columns
+            height              : ( isNxt ? 6 : 7 ) * rows
             color               : "lightyellow"
             anchors {
                 horizontalCenter: miniboardFrame.horizontalCenter
@@ -1349,28 +1378,50 @@ To locate sections with details use your editor to search for ****
                 id              : minilifeGrid
                 enabled         : (screenMode == "Preset")
                 anchors.fill    : parent
-                cellWidth       : isNxt ? 6 : 5
-                cellHeight      : isNxt ? 6 : 5
+                cellWidth       : isNxt ? 6 : 7
+                cellHeight      : isNxt ? 6 : 7
                 model           : lifeModel
+
+                interactive     : false
 
                 delegate:
                 Rectangle {
-                    width       : isNxt ? 6 : 5
-                    height      : isNxt ? 6 : 5
-                    color       : "green"
-                    visible     : model.lifeState // && (index < columns * rows )
+                    width       : isNxt ? 6 : 7
+                    height      : isNxt ? 6 : 7
+                    color       :              ( showOffset && (index == presetRowOffset * columns + presetColumnOffset) ) ? "cyan" : "green"
+                    visible     : model.lifeState || (isNxt && (index == presetRowOffset * columns + presetColumnOffset) ) // && (index < columns * rows ))
                 }
             }
         }
 
-        ScrollMenu {
+        Text {
+            id                  : presetScreenTextReminder
+            visible             : selectLife.showScrollMenu
+            width               : parent.width / 2
+            height              : buttonHeight
+            horizontalAlignment : Text.AlignHCenter
+
+            anchors {
+                bottom          : resetButton2.top
+                horizontalCenter: resetButton2.horizontalCenter
+            }
+            font    {
+                pixelSize       : isNxt ? 20 : 16
+                family          : qfont.regular.name
+                bold            : true
+            }
+            text: "Scroll and click 2 x to select" 
+            color : "blue"
+        }
+
+        ScrollMenu { 
             id                  : selectLife
             buttonText          : "Life Examples"
-            scrollmenuArray     : selectExamples
+            scrollmenuArray     : lifeExamplesName
+//            autoHideScrollMenuSeconds : 5
             cellNumberPrefix    : true
-            showItems           : isNxt ? 6 : 5
+            showItems           : 7
             anchors {
-//                top             : x3x3.top
                 top             : parent.top
                 horizontalCenter: presetScreenText.horizontalCenter
                 topMargin       : buttonHeight
@@ -1378,7 +1429,7 @@ To locate sections with details use your editor to search for ****
             fontFamily          : qfont.regular.name
             buttonPixelSize     : isNxt ? 20 : 16
             itemPixelSize       : isNxt ? 20 : 16
-            onItemSelected      : { addExample(selectedItem) }
+            onItemSelected      : { addExample(selectedItemIndex) }
         }
 
         Text {
@@ -1386,34 +1437,48 @@ To locate sections with details use your editor to search for ****
             width               : parent.width / 2
             height              : parent.height / 2
             wrapMode            : Text.WordWrap
-            horizontalAlignment : Text.AlignLeft
+            horizontalAlignment : Text.AlignHCenter
+
             anchors {
                 top             : selectLife.bottom
                 right           : parent.right
                 topMargin       : buttonHeight / 2
             }
-//            lineHeight          : 0.8
             font    {
                 pixelSize       : isNxt ? 20 : 16
                 family          : qfont.regular.name
                 bold            : false
             }
-            text:
-            "Above you see a scroll menu to add some examples."
-        +   "\nClick and wait...., When the board is too small it is cleared and resized."
-        +   "\nClick the same again to remove the selection."
-        +   "\n\nOn the left you can change the size of the board."
-        +   "Resizing the board takes time...."
-        +   "\nAnd the bigger the board, the more the work, the slower the app....."
-        +   "\n.....even buttons may react slower....."
+            text: isNxt ? 
+                     "The examples need a minimum or a fixed size."
+                +   "\nEach may clear and resize the board."
+                +   "\n >> Click  2  times and wait..... <<"
+                +   "\nResizing takes time..."
+                +   "\nClick the same again to toggle the selection."
+                +   "\n( Examples are added every now and then. )"
+
+                +   "\n\nOn the left you can change the Size and default Offset. (the blinking cell)"
+
+                +   "\n\nThe bigger the board, the more the work, the slower the app....."
+            :
+                     "The examples need a minimum or a fixed size."
+                +   "\nEach may clear and resize the board."
+                +   "\n >> Click  2  times and wait..... <<"
+                +   "\nResizing takes time..."
+                +   "\nClick the same again to toggle the selection."
+                +   "\n( Examples are added every now and then. )"
+
+                +   "\n\nOn the left you can change the Size."
+
+                +   "\n\nThe bigger the board, the more the work, the slower the app....."
         }
+
 
 // ***************************************** Presets Screen Size Buttons
 
-
         YaLabel {
             id              : x3x3
-            buttonText      : "3 x 3"
+            buttonText      : (presetMode == "resize" ) ? "3 x 3" : "r " + Math.floor( rows / 4) + " : c " + Math.floor( columns / 4)
             width           : buttonWidth
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1422,12 +1487,20 @@ To locate sections with details use your editor to search for ****
                 right       : meanxmean.left
                 rightMargin : 2
             }
-            onClicked       : { rows = 3; columns = 3 ; preset_rows = 3 ; preset_columns = 3 ; resetBoard() }
+//            onClicked       : { rows = 3; columns = 3 ; preset_rows = 3 ; preset_columns = 3 ; resetBoard() }
+            onClicked       : {
+                if (presetMode == "resize") { 
+                    presetRowOffset = 0 ; presetColumnOffset = 0; rows = 3; columns = 3 ; preset_rows = 3 ; preset_columns = 3 ; resetBoard()
+                } else {
+                    presetRowOffset = Math.floor( rows / 4) ; presetColumnOffset = Math.floor( columns / 4)
+                }
+            }
         }
 
         YaLabel {
             id              : meanxmean
-            buttonText      : Math.floor(maxrows/2) +" x " + Math.floor(maxcolumns/2)
+//            buttonText      : Math.floor(maxrows/2) +" x " + Math.floor(maxcolumns/2)
+            buttonText      : (presetMode == "resize" ) ? Math.floor(maxrows/2) +" x " + Math.floor(maxcolumns/2) : "r " + Math.floor( rows / 2) + " : c " + Math.floor( columns / 2)
             width           : buttonWidth
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1436,12 +1509,20 @@ To locate sections with details use your editor to search for ****
                 horizontalCenter: miniboardFrame.horizontalCenter
                 bottomMargin    : 2
             }
-            onClicked       : { rows = Math.floor(maxrows/2); columns = Math.floor(maxcolumns/2) ; preset_rows = rows ; preset_columns = columns ; resetBoard() }
+//            onClicked       : { rows = Math.floor(maxrows/2); columns = Math.floor(maxcolumns/2) ; preset_rows = rows ; preset_columns = columns ; resetBoard() }
+            onClicked       : {
+                if (presetMode == "resize") { 
+                    presetRowOffset = 0 ; presetColumnOffset = 0; rows = Math.floor(maxrows/2); columns = Math.floor(maxcolumns/2) ; preset_rows = rows ; preset_columns = columns ; resetBoard()
+                } else {
+                    presetRowOffset = Math.floor( rows / 2) ; presetColumnOffset = Math.floor( columns / 2)
+                }
+            }
         }
 
         YaLabel {
             id              : maxxmax
-            buttonText      : maxrows +" x " + maxcolumns
+//            buttonText      : maxrows +" x " + maxcolumns
+            buttonText      : (presetMode == "resize" ) ? maxrows +" x " + maxcolumns : "r " + Math.floor( rows * 0.75) + " : c " + Math.floor( columns * 0.75)
             width           : buttonWidth
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1450,12 +1531,37 @@ To locate sections with details use your editor to search for ****
                 left        : meanxmean.right
                 leftMargin  : 2
             }
-            onClicked       : { rows = maxrows; columns = maxcolumns ; preset_rows = rows ; preset_columns = columns ; resetBoard() }
+//            onClicked       : { rows = maxrows; columns = maxcolumns ; preset_rows = rows ; preset_columns = columns ; resetBoard() }
+            onClicked       : {
+                if (presetMode == "resize") { 
+                    presetRowOffset = 0 ; presetColumnOffset = 0; rows = maxrows; columns = maxcolumns ; preset_rows = rows ; preset_columns = columns ; resetBoard()
+                } else {
+                    presetRowOffset = Math.floor( rows * 0.75) ; presetColumnOffset = Math.floor( columns * 0.75)
+                }
+            }
+        }
+
+        YaLabel {
+            id              : presetModeButton
+            visible         : isNxt            // disable offset on Toon 1
+            buttonText      : "Size"
+            buttonText2     : "Offset"
+            buttonText2Stack: true
+            buttonText2Swap : true
+            width           : buttonWidth
+            height          : buttonHeight
+            hoveringEnabled : isNxt
+            anchors {
+                bottom      : resetButton2.bottom
+                right       : resetButton2.left
+                rightMargin : 2
+            }
+            onClicked       : { if (presetMode == "resize") { presetMode = "offset"} else {presetMode = "resize"} ; selected = ! selected }
         }
 
         YaLabel {
             id              : resetButton2
-            buttonText      : "Clear"
+            buttonText      : (presetMode == "resize") ? "Clear" : "Home"
             width           : buttonWidth
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1464,13 +1570,58 @@ To locate sections with details use your editor to search for ****
                 bottom      : meanxmean.top
                 bottomMargin: 2
             }
-            onClicked       : { preset_columns = columns ; preset_rows = rows ; resetBoard() }
+//            onClicked       : { preset_columns = columns ; preset_rows = rows ; presetRowOffset=0 ; presetColumnOffset=0; resetBoard() }
+            onClicked       : { 
+                if (presetMode == "resize") {
+                    preset_columns = columns ; preset_rows = rows ; resetBoard()
+                } else {
+                    presetRowOffset=0 ; presetColumnOffset=0;
+                }
+            }
+        }
+
+        YaLabel {
+            id              : applyLayout
+            visible         : ! isNxt
+            enabled         : ( (preset_columns != columns ) || ( preset_rows !=rows ) ) && (presetMode == "resize")
+            buttonText      : "Apply Size"
+            width           : buttonWidth
+            height          : buttonHeight
+            hoveringEnabled : isNxt
+            anchors {
+                bottom      : resetButton2.bottom
+                left        : resetButton2.right
+                leftMargin  : 2
+            }
+            onClicked       : { columns = preset_columns ; rows = preset_rows ; resetBoard() }
+        }
+
+        YaLabel {
+            id              : rowsPlus5
+            enabled         : ( ( presetMode == "resize" ) && (preset_rows <maxrows) ) || ( ( presetMode == "offset" ) && (presetRowOffset > 0) )
+            buttonText      : (presetMode == "resize" ) ? "5\n+" : "5\n^"
+            lineHeightSize  : 0.75
+            width           : buttonHeight
+            height          : buttonHeight
+            hoveringEnabled : isNxt
+            anchors {
+                bottom      : rowsPlus.top
+                left        : rowsPlus.left
+                bottomMargin: buttonHeight / 2
+            }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_rows = Math.min(maxrows, preset_rows + 5)  ; if ( isNxt ) { rows = preset_rows ; resetBoard() } 
+                } else {
+                    presetRowOffset = Math.max(0, presetRowOffset - 5)
+                }
+            }
         }
 
         YaLabel {
             id              : rowsPlus
-            enabled         : (preset_rows <maxrows)
-            buttonText      : "+"
+            enabled         : ( ( presetMode == "resize" ) && (preset_rows <maxrows) ) || ( ( presetMode == "offset" ) && (presetRowOffset > 0) )
+            buttonText      : (presetMode == "resize" ) ? "+" : "^"
             width           : buttonHeight
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1478,12 +1629,19 @@ To locate sections with details use your editor to search for ****
                 bottom      : presetRowText.top
                 left        : presetRowText.left
             }
-            onClicked       : { if (preset_rows <maxrows ) {preset_rows++ ; if ( isNxt ) { rows = preset_rows ; resetBoard() } } }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_rows++ ; if ( isNxt ) { rows = preset_rows ; resetBoard() } 
+                } else {
+                    presetRowOffset--
+                }
+            }
         }
+
 
         YaLabel {
             id              : presetRowText
-            buttonText      : preset_rows
+            buttonText      : (presetMode == "resize" ) ? preset_rows : presetRowOffset
             width           : buttonHeight
             height          : buttonHeight
             buttonBorderWidth   : 0
@@ -1501,8 +1659,8 @@ To locate sections with details use your editor to search for ****
 
         YaLabel {
             id              : rowsMinus
-            enabled         : (preset_rows >3 )
-            buttonText      : "-"
+            enabled         : ( ( presetMode == "resize" ) && (preset_rows >3 ) ) || ( ( presetMode == "offset" ) && (presetRowOffset < rows - 1) )
+            buttonText      : (presetMode == "resize" ) ? "-" : "v"
             width           : buttonHeight
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1510,13 +1668,68 @@ To locate sections with details use your editor to search for ****
                 top         : presetRowText.bottom
                 left        : presetRowText.left
             }
-            onClicked       : { preset_rows-- ; if ( isNxt ) { rows = preset_rows ; resetBoard() } }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_rows-- ;
+                    if ( presetRowOffset > preset_rows - 1) {presetRowOffset--}
+                    if ( isNxt ) { rows = preset_rows ; resetBoard() } 
+                } else {
+                    presetRowOffset++
+                }
+            }
+        }
+
+        YaLabel {
+            id              : rowsMinus5
+            enabled         : ( ( presetMode == "resize" ) && (preset_rows >3 ) ) || ( ( presetMode == "offset" ) && (presetRowOffset < rows - 1) )
+            buttonText      : (presetMode == "resize" ) ? "-\n5" : "v\n5"
+            lineHeightSize  : 0.75
+            width           : buttonHeight
+            height          : buttonHeight
+            hoveringEnabled : isNxt
+            anchors {
+                top         : rowsMinus.bottom
+                left        : rowsMinus.left
+                topMargin   : buttonHeight / 2
+            }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_rows = Math.max( 3, preset_rows - 5) ;
+                    if ( presetRowOffset > preset_rows - 1) {presetRowOffset = preset_rows - 1}
+                    if ( isNxt ) { rows = preset_rows ; resetBoard() } 
+                } else {
+                    presetRowOffset = Math.min(preset_rows - 1, presetRowOffset + 5)
+                }
+            }
+        }
+
+        YaLabel {
+            id              : columnsMinus5
+            enabled         : ( ( presetMode == "resize" ) && (preset_columns >3 ) ) || ( ( presetMode == "offset" ) && (presetColumnOffset > 0) )
+            buttonText      : (presetMode == "resize" ) ? "5 -" : "5 <"
+            width           : buttonHeight
+            height          : buttonHeight
+            hoveringEnabled : isNxt
+            anchors {
+                bottom      : columnsMinus.bottom
+                right       : columnsMinus.left
+                rightMargin : buttonHeight / 2
+            }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_columns = Math.max(3, preset_columns - 5)
+                    if ( presetColumnOffset > preset_columns - 1) {presetColumnOffset = preset_columns - 1}
+                    if ( isNxt ) { columns = preset_columns ; resetBoard() }
+                } else {
+                    presetColumnOffset = Math.max(0, presetColumnOffset - 5 )
+                }
+            }
         }
 
         YaLabel {
             id              : columnsMinus
-            enabled         : (preset_columns >3 )
-            buttonText      : "-"
+            enabled         : ( ( presetMode == "resize" ) && (preset_columns >3 ) ) || ( ( presetMode == "offset" ) && (presetColumnOffset > 0) )
+            buttonText      : (presetMode == "resize" ) ? "-" : "<"
             width           : buttonHeight
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1524,12 +1737,20 @@ To locate sections with details use your editor to search for ****
                 bottom      : presetColumnsText.bottom
                 right       : presetColumnsText.left
             }
-            onClicked       : { preset_columns-- ; if ( isNxt ) { columns = preset_columns ; resetBoard() } }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_columns--
+                    if ( presetColumnOffset > preset_columns - 1) {presetColumnOffset--}
+                    if ( isNxt ) { columns = preset_columns ; resetBoard() }
+                } else {
+                    presetColumnOffset--
+                }
+            }
         }
 
         YaLabel {
             id              : presetColumnsText
-            buttonText      : preset_columns
+            buttonText      : (presetMode == "resize" ) ? preset_columns : presetColumnOffset
             width           : buttonHeight
             height          : buttonHeight
             buttonBorderWidth   : 0
@@ -1547,8 +1768,8 @@ To locate sections with details use your editor to search for ****
 
         YaLabel {
             id              : columnsPlus
-            enabled         : (preset_columns <maxcolumns )
-            buttonText      : "+"
+            enabled         : ( ( presetMode == "resize" ) && (preset_columns <maxcolumns ) ) || ( ( presetMode == "offset" ) && (presetColumnOffset <columns - 1) )
+            buttonText      : (presetMode == "resize" ) ? "+" : ">"
             width           : buttonHeight
             height          : buttonHeight
             hoveringEnabled : isNxt
@@ -1556,25 +1777,37 @@ To locate sections with details use your editor to search for ****
                 bottom      : presetColumnsText.bottom
                 left        : presetColumnsText.right
             }
-            onClicked       : { if (preset_columns <maxcolumns ) {preset_columns++ ; if ( isNxt ) { columns = preset_columns ; resetBoard() } } }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_columns++ ; if ( isNxt ) { columns = preset_columns ; resetBoard() }
+                } else {
+                    presetColumnOffset++
+                }
+            }
         }
 
         YaLabel {
-            id              : applyLayout
-            visible         : ! isNxt
-            enabled         : ( (preset_columns != columns ) || ( preset_rows !=rows ) )
-            buttonText      : "Apply"
-            width           : buttonWidth
+            id              : columnsPlus5
+            enabled         : ( ( presetMode == "resize" ) && (preset_columns <maxcolumns ) ) || ( ( presetMode == "offset" ) && (presetColumnOffset <columns - 1) )
+            buttonText      : (presetMode == "resize" ) ? "+ 5" : "> 5"
+            width           : buttonHeight
             height          : buttonHeight
             hoveringEnabled : isNxt
             anchors {
                 bottom      : columnsPlus.bottom
                 left        : columnsPlus.right
-                leftMargin  : buttonHeight
+                leftMargin  : buttonHeight / 2
             }
-            onClicked       : { columns = preset_columns ; rows = preset_rows ; resetBoard() }
+            onClicked       : { 
+                if (presetMode == "resize" ) {
+                    preset_columns = Math.min(maxcolumns, preset_columns + 5) ; if ( isNxt ) { columns = preset_columns ; resetBoard() }
+                } else {
+                    presetColumnOffset = Math.min(columns - 1, presetColumnOffset + 5)
+                }
+            }
         }
 
+/*
     }
 
 // *********************************************** Preset Bottom Buttons
@@ -1589,7 +1822,7 @@ To locate sections with details use your editor to search for ****
             bottom          : parent.bottom
             horizontalCenter: parent.horizontalCenter
         }
-
+*/
         YaLabel {
             id              : infoScreenButton
             buttonText      : "Info"
@@ -1598,7 +1831,8 @@ To locate sections with details use your editor to search for ****
             hoveringEnabled : isNxt
             anchors {
                 horizontalCenter : parent.horizontalCenter
-                bottom      : parent.bottom
+//                bottom      : parent.bottom
+                top         : parent.bottom
             }
             onClicked       : { prevScreenMode = screenMode ; screenMode = "Info" }
         }
@@ -1611,9 +1845,11 @@ To locate sections with details use your editor to search for ****
             hoveringEnabled : isNxt
             anchors {
                 right       : parent.right
-                bottom      : parent.bottom
+//                bottom      : parent.bottom
+                top         : parent.bottom
             }
-            onClicked       : { prevScreenMode = screenMode ;  screenMode = "Life" }
+            // ( new example > ) new rows and columns count > new cellSize > recalculate Theme border sizes
+            onClicked       : { selectTheme(activeThemeName); prevScreenMode = screenMode ;  screenMode = "Life" }
         }
 
     }

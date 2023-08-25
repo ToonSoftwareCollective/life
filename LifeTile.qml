@@ -2,7 +2,7 @@ import QtQuick 2.1
 import qb.components 1.0
 
 Tile {
-    id                          : lifeTile
+    id                              : lifeTile
 
     onVisibleChanged: {
         if ( visible ) {
@@ -12,17 +12,17 @@ Tile {
             When dimState is activated while lifeScreenUrl is on the screen,
             lifeScreenUrl will run onVisibleChanged and will execute :
                 app.keepLifeOnScreen = alive
-            and it will be removed from the screen and the Tile will show up.
+            and it will be removed from the screen and this Tile will show up.
 
-            When the tile shows up while live == true,
-            app.keepLifeOnScreen == true and so we need to open the screen again.
+            When the tile shows up while Life is still running ,
+                app.keepLifeOnScreen == true 
+            and we need to open the screen again while we are in dimState
 */
             if (app.keepLifeOnScreen) { stage.openFullscreen(app.lifeScreenUrl) } 
         }
     }
 
 // --- Tile button
-
 
     YaLabel {
         id                      : tileButton
@@ -59,4 +59,37 @@ Tile {
         }       
 
     }
+
+    Text {
+        id                  : examplesUpdatedMessage
+        visible             : ( app.examplesCountNew != 0 )
+        text                : app.examplesCount + " Examples, new : "  + app.examplesCountNew
+        anchors {
+            top             : tileButton.top
+            horizontalCenter: tileButton.horizontalCenter
+        }
+        font    {
+            pixelSize       : isNxt ? 20 : 16
+            family          : qfont.regular.name
+            bold            : true
+        }
+        color               : "blue"
+    }
+
+    Text {
+        id                  : themesUpdatedMessage
+        visible             : ( app.themesCountNew != 0 )
+        text                : app.themesCount + " Themes, new : "  + app.themesCountNew
+        anchors {
+            bottom          : tileButton.bottom
+            horizontalCenter: tileButton.horizontalCenter
+        }
+        font    {
+            pixelSize       : isNxt ? 20 : 16
+            family          : qfont.regular.name
+            bold            : true
+        }
+        color               : "blue"
+    }
+
 }

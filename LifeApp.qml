@@ -11,8 +11,19 @@ App {
     property url          lifeScreenUrl : "LifeScreen.qml"
     property LifeScreen   lifeScreen
 
-    property bool   keepLifeOnScreen    : false
+    property bool keepLifeOnScreen      : false
     
+    // The next 6 are for some book keeping to put messages on the tile when there is something new
+    // Calculation is done in LifeScreen.qml where everything happens anyway
+    
+    property real examplesCount          : 0
+    property real examplesCountPrevious  : 0
+    property real examplesCountNew       : examplesCount - examplesCountPrevious
+
+    property real themesCount            : 0
+    property real themesCountPrevious    : 0
+    property real themesCountNew         : themesCount - themesCountPrevious
+        
 // ---------------------------------------- Register the App in the GUI
     
     function init() {

@@ -55,6 +55,8 @@ Item {
     width                               : buttonWidth       // Button width
     height                              : buttonHeight      // Button height
 
+    property variant prevScrollmenuArray : []   // We remember the previous menu so we can see if need to rebuild it
+
 // the next forces the scroll menu to be shown on top of all siblings
     z                                   : showScrollMenu ? 1 : 0
 
@@ -101,11 +103,15 @@ Item {
     property int buttonPixelSize        : isNxt ? 30 : 24
     property int itemPixelSize          : isNxt ? 50 : 40
 
+    property bool alreadySelectedOnce
+    
 // *********************************************************** Functions
 
 // ***** Main Button
 
     function mainButtonClicked(){
+    
+        alreadySelectedOnce = false
 
 // Setup / update scrollmenuModel with current contents of scrollmenuArray
 
@@ -113,57 +119,63 @@ Item {
 //  so the next time you press the button we want to highlight your last selection
 //  using the index of the buttonText
 
+        var differenceFound = (prevScrollmenuArray.length != scrollmenuArray.length)
+        var i = 0
+        while ( ( ! differenceFound ) && (i < scrollmenuArray.length )){ differenceFound = (prevScrollmenuArray[i] != scrollmenuArray[i] ) ; i++ }
+
         try { selectedItemIndex=Math.max(0,scrollmenuArray.indexOf(buttonText)) }
         catch(err) { selectedItemIndex=0 }
 
-        if (scrollmenuModel.count == 0) { // first time button is pressed
-            scrollmenuModel.append({id: 0 , text : ""})     // this is filled with the right value at the end of this function
-            var count = 0                                   // count all items
-            var itemText = ""
-            for (var i = 0 ; i < scrollmenuArray.length ; i++ ){
-                itemText = itemText = scrollmenuArray[i]
-                if (scrollmenuArray[i] != "" ) { count++ }
-                if (cellNumberPrefix) {
-                    scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
-                } else {
-                    scrollmenuModel.append({id: (i+1) , text : itemText})
+        if (differenceFound) {
+            if (scrollmenuModel.count == 0) { // first time button is pressed
+                scrollmenuModel.append({id: 0 , text : ""})     // this is filled with the right value at the end of this function
+                var count = 0                                   // count all items
+                var itemText = ""
+                for (var i = 0 ; i < scrollmenuArray.length ; i++ ){
+                    itemText = itemText = scrollmenuArray[i]
+                    if (scrollmenuArray[i] != "" ) { count++ }
+                    if (cellNumberPrefix) {
+                        scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
+                    } else {
+                        scrollmenuModel.append({id: (i+1) , text : itemText})
+                    }
                 }
-            }
-        } else { // not first time so we need to update because array may have changed
-            var i = 0
-            var count = 0
-            var itemText = ""
-            while ( ( i < scrollmenuArray.length ) && (i+1 < scrollmenuModel.count) ) {
-                itemText = itemText = scrollmenuArray[i]
-                if (scrollmenuArray[i] != "" ) { count++ }
-                if (cellNumberPrefix) {
-                    scrollmenuModel.setProperty(i+1, "text", (i+1) + ") "+ itemText )
-                } else {
-                    scrollmenuModel.setProperty(i+1, "text", itemText )
+            } else { // not first time so we need to update because array may have changed
+                var i = 0
+                var count = 0
+                var itemText = ""
+                while ( ( i < scrollmenuArray.length ) && (i+1 < scrollmenuModel.count) ) {
+                    itemText = scrollmenuArray[i]
+                    if (scrollmenuArray[i] != "" ) { count++ }
+                    if (cellNumberPrefix) {
+                        scrollmenuModel.setProperty(i+1, "text", (i+1) + ") "+ itemText )
+                    } else {
+                        scrollmenuModel.setProperty(i+1, "text", itemText )
+                    }
+                    i=i+1
                 }
-                i=i+1
-            }
-            while ( i < scrollmenuArray.length ) {  // the array may have more items than before
-                itemText = itemText = scrollmenuArray[i]
-                if (scrollmenuArray[i] != "" ) { count++ }
-                if (cellNumberPrefix) {
-                    scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
-                } else {
-                    scrollmenuModel.append({id: (i+1) , text : itemText})
+                while ( i < scrollmenuArray.length ) {  // the array may have more items than before
+                    itemText = scrollmenuArray[i]
+                    if (scrollmenuArray[i] != "" ) { count++ }
+                    if (cellNumberPrefix) {
+                        scrollmenuModel.append({id: (i+1) , text : (i+1) + ") "+ itemText})
+                    } else {
+                        scrollmenuModel.append({id: (i+1) , text : itemText})
+                    }
+                    i=i+1
                 }
-                i=i+1
-            }
-            while (i+1 < scrollmenuModel.count) { // the array may have less items than before
-                if (cellNumberPrefix) {
-                    scrollmenuModel.setProperty(i+1, "text", (i+1) + ") " )
-                } else {
-                    scrollmenuModel.setProperty(i+1, "text", "" )
+
+                // the array may have less items than before so we may need to remove delegates
+                var end = scrollmenuModel.count - 1
+                while (end > count ) {
+                    scrollmenuModel.remove(end)
+                    end = end - 1
                 }
-                i=i+1
+
             }
+            if (scrollMenuTitle == "") { scrollmenuModel.setProperty(0, "text", "Select 1 of " + count ) }
+            else { scrollmenuModel.setProperty(0, "text", scrollMenuTitle) }
         }
-        if (scrollMenuTitle == "") { scrollmenuModel.setProperty(0, "text", "Select 1 of " + count ) }
-        else { scrollmenuModel.setProperty(0, "text", scrollMenuTitle) }
         showScrollMenu = true
     }
 
@@ -191,19 +203,32 @@ Item {
     property bool itemSelectReady : false
 
     function selectionClicked(index){
-        if (index > 0) {    // skip for the scrollMenuTitle
+    
+    alreadySelectedOnce
+    
+        if (index == 0) {    // skip for the scrollMenuTitle
+            showScrollMenu = false
+            prevScrollmenuArray = scrollmenuArray.slice()   // remember last input
+        } else {
+            if ( ( (alreadySelectedOnce) && ( selectedItemIndex == Math.max(0,index - 1) ) )  || ( selectedItemIndex == Math.max(0,index - 1) ) ) {
+// clicked same item 2x OR clicked same item as previous time a selection was made
 // Update output variables and text on button
-            selectedItemIndex = Math.max(0,index - 1)
-            selectedItem = scrollmenuArray[selectedItemIndex]
-            buttonText = selectedItem
-            itemSelectReady = true  // start the timer below
+                selectedItemIndex = Math.max(0,index - 1)
+                selectedItem = scrollmenuArray[selectedItemIndex]
+                buttonText = selectedItem
+                itemSelectReady = true  // start the timer below
+                showScrollMenu = false
+                prevScrollmenuArray = scrollmenuArray.slice()   // remember last input
+            } else {
+                selectedItemIndex = Math.max(0,index - 1)
+                alreadySelectedOnce = true
+            }
         }
-        showScrollMenu = false
     }
 
     Timer {
         id: itemSelectedTimer
-        interval: 50 
+        interval: 50
         running: itemSelectReady
         repeat: true
 // signal to object that item is selected
@@ -296,7 +321,7 @@ Item {
         id                      : selection
         visible                 : showScrollMenu
         width                   : parent.width
-        height                  : itemHeight * showItems
+        height                  : itemHeight * ( showItems - 1)
         color                   : "transparent" // see what's underneath when you pull the menu to far up or down :-)
         anchors {
             top                 : parent.top
@@ -350,7 +375,7 @@ Item {
 
                 MouseArea {
                     anchors.fill        : parent
-                    onClicked           : { if (scrollmenuArray[index-1] != "") {selectionClicked(index)}  }
+                    onClicked           : { hideScrollMenuTimer.stop() ; hideScrollMenuTimer.start() ; if (scrollmenuArray[index-1] != "") {selectionClicked(index)}  }
                     onPositionChanged   : { hideScrollMenuTimer.stop() ; hideScrollMenuTimer.start() }
                 }
             }
