@@ -15,7 +15,7 @@ There is also a number of themes you can select from. The default is black and w
 
 <i> * Unfortunately Toon 1 is not as powerfull as Toon 2 so not all examples are available on Toon 1 and changing default offset is also available on Toon 2 only.</i>
 
-### Install the app
+### Install the app 
 
 This app is available in the Toon Store but when you want to do it manually :
 
@@ -29,23 +29,24 @@ Thanks for reading and enjoy the Game of Life.
 <table border = 1 bordercolor ="red" align = center>
 <tr>
 <td>
-<img width="400" height="240" src="https://github.com/JackV2020/life/blob/main/screenshots/life_screenshot_1.png">
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/lifescreenshots/life_screenshot_1.png">
 </td>
 <td>
-<img width="400" height="240" src="https://github.com/JackV2020/life/blob/main/screenshots/life_screenshot_2.png">
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/lifescreenshots/life_screenshot_2.png">
 </td>
 <tr>
 <td>
-<img width="400" height="240" src="https://github.com/JackV2020/life/blob/main/screenshots/life_screenshot_3.png">
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/lifescreenshots/life_screenshot_3.png">
 </td>
 <td>
-<img width="400" height="240" src="https://github.com/JackV2020/life/blob/main/screenshots/life_screenshot_4.png">
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/lifescreenshots/life_screenshot_4.png">
+</td>
+<tr>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/lifescreenshots/life_screenshot_5.png">
 </td>
 <td>
-<img width="400" height="240" src="https://github.com/JackV2020/life/blob/main/screenshots/life_screenshot_5.png">
-</td>
-<td>
-<img width="400" height="240" src="https://github.com/JackV2020/life/blob/main/screenshots/life_screenshot_6.png">
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/lifescreenshots/life_screenshot_6.png">
 </td>
 <tr>
 </table>
