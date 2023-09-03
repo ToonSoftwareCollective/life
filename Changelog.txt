@@ -1,3 +1,5 @@
+2.0.1
+- Tile notifies of new Examples and Themes
 2.0.0
 - Moved Examples and Themes from hardcoded to Internet repository
 - Fastened Life and Example grids to center of screens
