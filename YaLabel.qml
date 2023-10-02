@@ -85,7 +85,11 @@ Item {
     property bool buttonText2Active     : false
     property bool buttonText2Swap       : false
 
-
+    onButtonText2ActiveChanged: {
+        selected = buttonText2Active
+    }
+        //                pixelSize: ( (!buttonText2Active || buttonText2Swap) ? 1 : 0.75) * ( yaLabel.pixelsizeoverride ? yaLabel.pixelsizeoverridesize : isNxt ? 20 : 16 )
+    
     signal clicked()
 
     function doClick(){

@@ -1,7 +1,6 @@
 import QtQuick 2.1
 import qb.components 1.0
 import qb.base 1.0;
-import FileIO 1.0
 
 App {
 
@@ -12,20 +11,20 @@ App {
     property LifeScreen   lifeScreen
 
     property bool keepLifeOnScreen      : false
-    
+
     // The next 6 are for some book keeping to put messages on the tile when there is something new
     // Calculation is done in LifeScreen.qml where everything happens anyway
-    
+
     property real examplesCount          : 0
     property real examplesCountPrevious  : 0
-    property real examplesCountNew       : examplesCount - examplesCountPrevious
+    property real examplesCountNew       : 0
 
     property real themesCount            : 0
     property real themesCountPrevious    : 0
-    property real themesCountNew         : themesCount - themesCountPrevious
-        
+    property real themesCountNew         : 0
+
 // ---------------------------------------- Register the App in the GUI
-    
+
     function init() {
 
         const args = {
@@ -35,8 +34,6 @@ App {
             thumbIconVAlignment : "center",
             thumbWeight         : 30
         }
-// I would like :
-//            thumbIcon           : "qrc:/tsc/life.png",
 
         registry.registerWidget("tile", tileUrl, this, "lifeTile", args);
 
@@ -51,8 +48,9 @@ App {
         log("App onCompleted Started")
 
         log("App onCompleted Completed")
+
     }
-    
+
 // -------------------- A function to log to the console with timestamps
 
     function log(tolog) {
@@ -65,11 +63,23 @@ App {
                 ('00'+ now.getMinutes()      ).slice(-2) + ":" +
                 ('00'+ now.getSeconds()      ).slice(-2) + "." +
                 ('000'+now.getMilliseconds() ).slice(-3);
+
 // This is a line with the name of the app in it so I can filter the log
         console.log(dateTime+' Life : ' + tolog.toString())
-        
+
+        try { logscreen.log( 'Life : ' + tolog.toString()   ) }
+//        catch(e) { console.log(dateTime+' Life : LogScreen not available (yet).') }
+        catch(e) { var dummy = 0 }
+
     }
-        
+
+// ---------------------------------------------------------------------
+
+	function listProperty(item){
+        for (var p in item)
+            log(p + " : " + item[p]);
+	}
+
 // ---------------------------------------------------------------------
 
 }

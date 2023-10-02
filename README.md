@@ -8,7 +8,7 @@ The game has two modes.
 For a first impression see the screenshots below. Note that the 'Home' button in the left upper corner is hidden while the game is alive. The 'Home' button comes back when you click the 'Pause Life' button.
 
 You can select examples from a scrolling menu. One of the screenshots below shows there were 13 * examples when I created the app. The app gets the examples from a github repository in which I create new examples every now and then so you will see new examples appear in the app.
-<br>You can change the size of the grid and the default offset where the examples are put on the screen. You may compose your own shape on the Life screen when you enable clicks. 
+<br>You can change the size of the grid and on Toon 2 the default offset where the examples are put on the screen. You may compose your own shape on the Life screen when you enable clicks. 
 <br>When you have something nice you want me to add as an example go to https://github.com/JackV2020/appDataTest/tree/main/lifeData.
 
 There is also a number of themes you can select from. The default is black and white. To select another theme you can click the 'Select Theme' button any time. When the game is alive it will pause so you can select a new theme. The Themes come from the same github repository so when you have a nice Theme you want me to add go to the same repository.
