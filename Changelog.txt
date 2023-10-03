@@ -1,3 +1,12 @@
+2.0.2
+- Categories in Examples menu with New categories first
+- Categories in Themes menu and support for images in themes
+- Use new button for Start/Pause and Wrap/Room buttons
+- Toon 2 : Add Offset warning when an offset is active
+- Toon 2 : 10 more rows and columns for a total of 61 x 61
+- Split all examples and themes in individual files to save Toon memory
+- Add Example description type PTA (Array based on standard Plaintext)
+- Add Example description type RLET (Text based on standard RLE)
 2.0.1
 - Tile notifies of new Examples and Themes
 2.0.0
